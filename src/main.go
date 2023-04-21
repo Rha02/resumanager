@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Rha02/resumanager/src/handlers"
+	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )
@@ -13,8 +14,12 @@ var PORT = ":3000"
 
 func main() {
 	godotenv.Load()
+
+	// init cache
+	cacheRepo := cacheservice.NewTestCacheRepo()
+
 	// init handlers
-	handlers.NewHandlers(handlers.NewRepository())
+	handlers.NewHandlers(handlers.NewRepository(cacheRepo))
 
 	router := newRouter()
 

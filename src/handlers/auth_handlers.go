@@ -114,8 +114,10 @@ func (m *Repository) CheckAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID := int(claims["id"].(float64))
+
 	res := map[string]interface{}{
-		"id":       int(claims["id"].(float64)),
+		"id":       userID,
 		"username": claims["username"],
 		"exp":      claims["exp"],
 	}
