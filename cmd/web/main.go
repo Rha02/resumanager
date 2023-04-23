@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Rha02/resumanager/src/handlers"
+	"github.com/Rha02/resumanager/src/middleware"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -34,7 +35,11 @@ func newRouter() *chi.Mux {
 	r.Post("/register", handlers.Repo.Register)
 	r.Post("/logout", handlers.Repo.Logout)
 	r.Post("/refresh", handlers.Repo.Refresh)
-	r.Get("/checkauth", handlers.Repo.CheckAuth)
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.RequiresAuthentication)
+		r.Get("/checkauth", handlers.Repo.CheckAuth)
+	})
 
 	return r
 }

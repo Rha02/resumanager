@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Rha02/resumanager/src/middleware"
 	"github.com/Rha02/resumanager/src/models"
 	"github.com/golang-jwt/jwt"
 )
@@ -83,41 +84,11 @@ func (m *Repository) Refresh(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) CheckAuth(w http.ResponseWriter, r *http.Request) {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" || len(authHeader) < 7 {
-		http.Error(w, "No authorization header", http.StatusUnauthorized)
-		return
-	}
-	tokenString := authHeader[7:]
-
-	// Parse the token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, http.ErrNoCookie
-		}
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
-	if err != nil {
-		http.Error(w, "Error parsing token", http.StatusUnauthorized)
-		return
-	}
-
-	// Check if token is valid
-	if !token.Valid {
-		http.Error(w, "Token is not valid", http.StatusUnauthorized)
-		return
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		http.Error(w, "Error parsing claims", http.StatusUnauthorized)
-		return
-	}
-
-	userID := int(claims["id"].(float64))
+	ctx := r.Context()
+	claims := ctx.Value(middleware.ContextKey{}).(jwt.MapClaims)
 
 	res := map[string]interface{}{
-		"id":       userID,
+		"id":       claims["id"],
 		"username": claims["username"],
 		"exp":      claims["exp"],
 	}
