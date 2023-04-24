@@ -3,33 +3,9 @@ package middleware
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
-	"time"
-
-	"github.com/golang-jwt/jwt"
 )
-
-var (
-	signingMethod                       = jwt.SigningMethodHS256
-	accessTokenExpireTime time.Duration = 15 * 60 // 15 minutes
-	jwtKey                              = []byte(os.Getenv("JWT_SECRET"))
-)
-
-func createJWTAccessToken(key []byte, expiration int64, sm jwt.SigningMethod) string {
-	// Create access token
-	accessToken, err := jwt.NewWithClaims(sm, jwt.MapClaims{
-		"id":       1,
-		"username": "User1",
-		"exp":      expiration,
-	}).SignedString(key)
-	if err != nil {
-		panic(err)
-	}
-
-	return accessToken
-}
 
 // requiresAuthenticationTests is a table-driven test suite for the RequiresAuthentication middleware
 var requiresAuthenticationTests = []struct {
@@ -40,11 +16,7 @@ var requiresAuthenticationTests = []struct {
 	{
 		name: "Valid login",
 		requestHeaders: map[string]string{
-			"Authorization": "Bearer " + createJWTAccessToken(
-				jwtKey,
-				time.Now().Add(accessTokenExpireTime*time.Second).Unix(),
-				signingMethod,
-			),
+			"Authorization": "Bearer valid_token",
 		},
 		expectedStatusCode: http.StatusOK,
 	},
