@@ -5,10 +5,14 @@ import (
 	"os"
 	"testing"
 
+	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	"github.com/go-chi/chi/v5"
 )
 
 func TestMain(m *testing.M) {
+	// init AuthTokenService
+	authtokenservice.NewAuthTokenRepo(authtokenservice.NewTestAuthTokenRepo())
+
 	os.Exit(m.Run())
 }
 

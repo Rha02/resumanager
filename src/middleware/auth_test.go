@@ -54,42 +54,16 @@ var requiresAuthenticationTests = []struct {
 		expectedStatusCode: http.StatusUnauthorized,
 	},
 	{
-		name: "Invalid authorization header",
+		name: "Short authorization header",
 		requestHeaders: map[string]string{
-			"Authorization": "Bearer invalid_token",
-		},
-		expectedStatusCode: http.StatusUnauthorized,
-	},
-	{
-		name: "Invalid signing method",
-		requestHeaders: map[string]string{
-			"Authorization": "Bearer " + createJWTAccessToken(
-				jwtKey,
-				time.Now().Add(accessTokenExpireTime*time.Second).Unix(),
-				jwt.SigningMethodHS512,
-			),
-		},
-		expectedStatusCode: http.StatusUnauthorized,
-	},
-	{
-		name: "Expired token",
-		requestHeaders: map[string]string{
-			"Authorization": createJWTAccessToken(
-				jwtKey,
-				time.Now().Add(-accessTokenExpireTime*time.Second).Unix(),
-				signingMethod,
-			),
+			"Authorization": "Bearer",
 		},
 		expectedStatusCode: http.StatusUnauthorized,
 	},
 	{
 		name: "Invalid token",
 		requestHeaders: map[string]string{
-			"Authorization": "Bearer " + createJWTAccessToken(
-				[]byte("invalid"),
-				time.Now().Add(accessTokenExpireTime*time.Second).Unix(),
-				signingMethod,
-			),
+			"Authorization": "Bearer " + "error",
 		},
 		expectedStatusCode: http.StatusUnauthorized,
 	},

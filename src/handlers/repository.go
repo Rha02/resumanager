@@ -1,6 +1,8 @@
 package handlers
 
-import cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
+import (
+	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
+)
 
 type Repository struct {
 	CacheRepo cacheservice.CacheRepository

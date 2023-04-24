@@ -4,18 +4,10 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
-	"time"
 
 	"github.com/Rha02/resumanager/src/middleware"
 	"github.com/Rha02/resumanager/src/models"
-	"github.com/golang-jwt/jwt"
-)
-
-var (
-	signingMethod                        = jwt.SigningMethodHS256
-	accessTokenExpireTime  time.Duration = 15 * 60          // 15 minutes
-	refreshTokenExpireTime               = 24 * 7 * 60 * 60 // 24 hours
+	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 )
 
 func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
@@ -39,25 +31,19 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key := []byte(os.Getenv("JWT_SECRET"))
-
-	// Create access token
-	accessToken, err := jwt.NewWithClaims(signingMethod, jwt.MapClaims{
+	accessToken, err := authtokenservice.Repo.CreateAccessToken(map[string]interface{}{
 		"id":       1,
 		"username": user.Username,
-		"exp":      time.Now().Add(accessTokenExpireTime * time.Second).Unix(),
-	}).SignedString(key)
+	})
 	if err != nil {
 		http.Error(w, "Error signing access token", http.StatusInternalServerError)
 		return
 	}
 
-	// Create refresh token
-	refreshToken, err := jwt.NewWithClaims(signingMethod, jwt.MapClaims{
+	refreshToken, err := authtokenservice.Repo.CreateRefreshToken(map[string]interface{}{
 		"id":       1,
 		"username": user.Username,
-		"exp":      refreshTokenExpireTime,
-	}).SignedString(key)
+	})
 	if err != nil {
 		http.Error(w, "Error signing refresh token", http.StatusInternalServerError)
 		return
@@ -85,15 +71,9 @@ func (m *Repository) Refresh(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) CheckAuth(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	claims := ctx.Value(middleware.ContextKey{}).(jwt.MapClaims)
-
-	res := map[string]interface{}{
-		"id":       claims["id"],
-		"username": claims["username"],
-		"exp":      claims["exp"],
-	}
+	claims := ctx.Value(middleware.ContextKey{}).(map[string]interface{})
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(res)
+	json.NewEncoder(w).Encode(claims)
 }

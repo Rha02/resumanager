@@ -2,11 +2,9 @@ package middleware
 
 import (
 	"context"
-	"errors"
 	"net/http"
-	"os"
 
-	"github.com/golang-jwt/jwt"
+	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 )
 
 type ContextKey struct{}
@@ -21,25 +19,13 @@ func RequiresAuthentication(next http.Handler) http.Handler {
 		}
 		tokenString := authHeader[7:]
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			signedMethod := token.Method.Alg()
-			if signedMethod != "HS256" {
-				return nil, errors.New("invalid signing method")
-			}
-
-			return []byte(os.Getenv("JWT_SECRET")), nil
-		})
+		claims, err := authtokenservice.Repo.ParseToken(tokenString)
 		if err != nil {
 			http.Error(w, "Error parsing token", http.StatusUnauthorized)
 			return
 		}
 
-		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			ctx := context.WithValue(r.Context(), ContextKey{}, claims)
-			next.ServeHTTP(w, r.WithContext(ctx))
-			return
-		}
-
-		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		ctx := context.WithValue(r.Context(), ContextKey{}, claims)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

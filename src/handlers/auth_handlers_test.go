@@ -33,6 +33,22 @@ var loginTests = []struct {
 		requestBody:        `{"username": "test"}`,
 		expectedStatusCode: 400,
 	},
+	{
+		name: "Error creating access token",
+		requestBody: `{
+			"username": "access_token_error",
+			"password": "test"
+		}`,
+		expectedStatusCode: 500,
+	},
+	{
+		name: "Error creating refresh token",
+		requestBody: `{
+			"username": "refresh_token_error",
+			"password": "test"
+		}`,
+		expectedStatusCode: 500,
+	},
 }
 
 // TestLogin tests the Login handler.

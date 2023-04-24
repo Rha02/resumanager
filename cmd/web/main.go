@@ -3,9 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Rha02/resumanager/src/handlers"
 	"github.com/Rha02/resumanager/src/middleware"
+	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -18,6 +20,11 @@ func main() {
 
 	// init cache
 	cacheRepo := cacheservice.NewTestCacheRepo()
+
+	// init auth token service
+	authtokenservice.NewAuthTokenRepo(authtokenservice.NewAuthTokenProvider(
+		os.Getenv("JWT_SIGNING_ALGORITHM"),
+	))
 
 	// init handlers
 	handlers.NewHandlers(handlers.NewRepository(cacheRepo))
