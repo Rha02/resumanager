@@ -22,13 +22,13 @@ func RequiresAuthentication(next http.Handler) http.Handler {
 		tokenString := authHeader[7:]
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected signing method")
+			signedMethod := token.Method.Alg()
+			if signedMethod != "HS256" {
+				return nil, errors.New("invalid signing method")
 			}
 
 			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
-
 		if err != nil {
 			http.Error(w, "Error parsing token", http.StatusUnauthorized)
 			return

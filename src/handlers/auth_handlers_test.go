@@ -37,14 +37,14 @@ var loginTests = []struct {
 
 // TestLogin tests the Login handler.
 func TestLogin(t *testing.T) {
+	handler := getRoutes()
+
 	for _, tt := range loginTests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, _ := http.NewRequest("POST", "/login", strings.NewReader(tt.requestBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			rr := httptest.NewRecorder()
-
-			handler := getRoutes()
 			handler.ServeHTTP(rr, req)
 
 			if rr.Code != tt.expectedStatusCode {
