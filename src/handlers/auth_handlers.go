@@ -21,7 +21,7 @@ var (
 func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
 
@@ -29,7 +29,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(reqBody, &user)
 	if err != nil {
-		http.Error(w, "Error unmarshalling request body", http.StatusInternalServerError)
+		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
 		return
 	}
 
