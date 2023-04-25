@@ -44,7 +44,7 @@ func newRouter() *chi.Mux {
 	r.Post("/refresh", handlers.Repo.Refresh)
 
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.RequiresAuthentication)
+		r.Use(middleware.RequiresAuthentication(handlers.Repo))
 		r.Get("/checkauth", handlers.Repo.CheckAuth)
 	})
 
