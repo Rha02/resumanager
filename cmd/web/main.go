@@ -22,12 +22,10 @@ func main() {
 	cacheRepo := cacheservice.NewTestCacheRepo()
 
 	// init auth token service
-	authtokenservice.NewAuthTokenRepo(authtokenservice.NewAuthTokenProvider(
-		os.Getenv("JWT_SIGNING_ALGORITHM"),
-	))
+	authTokenRepo := authtokenservice.NewAuthTokenProvider(os.Getenv("JWT_SIGNING_ALGORITHM"))
 
 	// init handlers
-	handlers.NewHandlers(handlers.NewRepository(cacheRepo))
+	handlers.NewHandlers(handlers.NewRepository(cacheRepo, authTokenRepo))
 
 	router := newRouter()
 

@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/Rha02/resumanager/src/models"
-	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 )
 
 func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +30,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := authtokenservice.Repo.CreateAccessToken(map[string]interface{}{
+	accessToken, err := m.AuthTokenRepo.CreateAccessToken(map[string]interface{}{
 		"id":       1,
 		"username": user.Username,
 	})
@@ -40,7 +39,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshToken, err := authtokenservice.Repo.CreateRefreshToken(map[string]interface{}{
+	refreshToken, err := m.AuthTokenRepo.CreateRefreshToken(map[string]interface{}{
 		"id":       1,
 		"username": user.Username,
 	})

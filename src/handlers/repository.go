@@ -14,9 +14,10 @@ type Repository struct {
 
 var Repo *Repository
 
-func NewRepository(cacheRepo cacheservice.CacheRepository) *Repository {
+func NewRepository(cacheRepo cacheservice.CacheRepository, authTokenRepo authtokenservice.AuthTokenRepository) *Repository {
 	return &Repository{
-		CacheRepo: cacheRepo,
+		CacheRepo:     cacheRepo,
+		AuthTokenRepo: authTokenRepo,
 	}
 }
 

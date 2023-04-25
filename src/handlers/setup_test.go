@@ -12,12 +12,13 @@ import (
 // TestMain is the entry point for all tests in this package.
 func TestMain(m *testing.M) {
 	cacheRepo := cacheservice.NewTestCacheRepo()
-
-	// init auth token service
-	authtokenservice.NewAuthTokenRepo(authtokenservice.NewTestAuthTokenRepo())
+	authTokenRepo := authtokenservice.NewTestAuthTokenRepo()
 
 	// init handlers
-	NewHandlers(NewRepository(cacheRepo))
+	NewHandlers(NewRepository(
+		cacheRepo,
+		authTokenRepo,
+	))
 
 	os.Exit(m.Run())
 }

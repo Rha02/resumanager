@@ -10,9 +10,3 @@ type AuthTokenRepository interface {
 	// ParseToken parses the given token, validates it, and returns the payload.
 	ParseToken(token string) (map[string]interface{}, error)
 }
-
-var Repo AuthTokenRepository
-
-func NewAuthTokenRepo(repo AuthTokenRepository) {
-	Repo = repo
-}

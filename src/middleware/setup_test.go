@@ -7,12 +7,19 @@ import (
 
 	"github.com/Rha02/resumanager/src/handlers"
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
+	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	"github.com/go-chi/chi/v5"
 )
 
 func TestMain(m *testing.M) {
-	// init AuthTokenService
-	authtokenservice.NewAuthTokenRepo(authtokenservice.NewTestAuthTokenRepo())
+	cacheRepo := cacheservice.NewTestCacheRepo()
+	authTokenRepo := authtokenservice.NewTestAuthTokenRepo()
+
+	// init handlers
+	handlers.NewHandlers(handlers.NewRepository(
+		cacheRepo,
+		authTokenRepo,
+	))
 
 	os.Exit(m.Run())
 }
