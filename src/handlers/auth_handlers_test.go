@@ -69,3 +69,66 @@ func TestLogin(t *testing.T) {
 		})
 	}
 }
+
+var refreshTests = []struct {
+	name               string
+	requestHeaders     map[string]string
+	expectedStatusCode int
+}{
+	{
+		name: "Valid refresh",
+		requestHeaders: map[string]string{
+			"Authorization": "Bearer refresh_token",
+		},
+		expectedStatusCode: http.StatusOK,
+	},
+	{
+		name:               "Missing authorization header",
+		requestHeaders:     map[string]string{},
+		expectedStatusCode: http.StatusUnauthorized,
+	},
+	{
+		name: "Short authorization header",
+		requestHeaders: map[string]string{
+			"Authorization": "Bearer",
+		},
+		expectedStatusCode: http.StatusUnauthorized,
+	},
+	{
+		name: "Invalid token",
+		requestHeaders: map[string]string{
+			"Authorization": "Bearer error",
+		},
+		expectedStatusCode: http.StatusUnauthorized,
+	},
+	{
+		name: "Error creating access token",
+		requestHeaders: map[string]string{
+			"Authorization": "Bearer creating_access_token_error",
+		},
+		expectedStatusCode: http.StatusInternalServerError,
+	},
+}
+
+func TestRefresh(t *testing.T) {
+	handler := getRoutes()
+
+	for _, tt := range refreshTests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, _ := http.NewRequest("POST", "/refresh", strings.NewReader(""))
+			req.Header.Set("Content-Type", "application/json")
+
+			for k, v := range tt.requestHeaders {
+				req.Header.Set(k, v)
+			}
+
+			rr := httptest.NewRecorder()
+			handler.ServeHTTP(rr, req)
+
+			if rr.Code != tt.expectedStatusCode {
+				t.Errorf("handler returned wrong status code: got %v, want %v", rr.Code, tt.expectedStatusCode)
+				t.Errorf("response body: %v", rr.Body.String())
+			}
+		})
+	}
+}

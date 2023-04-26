@@ -16,7 +16,7 @@ var requiresAuthenticationTests = []struct {
 	{
 		name: "Valid login",
 		requestHeaders: map[string]string{
-			"Authorization": "Bearer valid_token",
+			"Authorization": "Bearer access_token",
 		},
 		expectedStatusCode: http.StatusOK,
 	},
@@ -36,6 +36,13 @@ var requiresAuthenticationTests = []struct {
 		name: "Invalid token",
 		requestHeaders: map[string]string{
 			"Authorization": "Bearer " + "error",
+		},
+		expectedStatusCode: http.StatusUnauthorized,
+	},
+	{
+		name: "Not an access token",
+		requestHeaders: map[string]string{
+			"Authorization": "Bearer " + "refresh_token",
 		},
 		expectedStatusCode: http.StatusUnauthorized,
 	},

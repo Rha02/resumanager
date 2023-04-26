@@ -17,7 +17,7 @@ func RequiresAuthentication(repo *handlers.Repository) func(http.Handler) http.H
 			}
 			tokenString := authHeader[7:]
 
-			claims, err := repo.AuthTokenRepo.ParseToken(tokenString)
+			claims, err := repo.AuthTokenRepo.ParseAccessToken(tokenString)
 			if err != nil {
 				http.Error(w, "Error parsing token", http.StatusUnauthorized)
 				return

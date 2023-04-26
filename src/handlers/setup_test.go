@@ -27,6 +27,7 @@ func getRoutes() *chi.Mux {
 	mux := chi.NewRouter()
 
 	mux.Post("/login", Repo.Login)
+	mux.Post("/refresh", Repo.Refresh)
 
 	return mux
 }

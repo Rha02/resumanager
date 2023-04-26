@@ -57,7 +57,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
-
+	w.Write([]byte("Register"))
 }
 
 func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +65,30 @@ func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Refresh(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Refresh"))
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" || len(authHeader) < 7 {
+		http.Error(w, "No authorization header", http.StatusUnauthorized)
+		return
+	}
+	refreshToken := authHeader[7:]
+
+	claims, err := m.AuthTokenRepo.ParseRefreshToken(refreshToken)
+	if err != nil {
+		http.Error(w, "Error parsing token", http.StatusUnauthorized)
+		return
+	}
+
+	accessToken, err := m.AuthTokenRepo.CreateAccessToken(claims)
+	if err != nil {
+		http.Error(w, "Error signing access token", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"access_token": accessToken,
+	})
 }
 
 func (m *Repository) CheckAuth(w http.ResponseWriter, r *http.Request) {
