@@ -18,14 +18,14 @@ var PORT = ":3000"
 func main() {
 	godotenv.Load()
 
-	// init cache
-	cacheRepo := cacheservice.NewTestCacheRepo()
+	// init blacklist for auth refresh tokens
+	blacklist := cacheservice.NewTestCacheRepo()
 
 	// init auth token service
 	authTokenRepo := authtokenservice.NewAuthTokenProvider(os.Getenv("JWT_SIGNING_ALGORITHM"))
 
 	// init handlers
-	handlers.NewHandlers(handlers.NewRepository(cacheRepo, authTokenRepo))
+	handlers.NewHandlers(handlers.NewRepository(blacklist, authTokenRepo))
 
 	router := newRouter()
 

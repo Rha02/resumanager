@@ -8,7 +8,7 @@ import (
 type ContextKey struct{}
 
 type Repository struct {
-	CacheRepo     cacheservice.CacheRepository
+	Blacklist     cacheservice.CacheRepository
 	AuthTokenRepo authtokenservice.AuthTokenRepository
 }
 
@@ -16,7 +16,7 @@ var Repo *Repository
 
 func NewRepository(cacheRepo cacheservice.CacheRepository, authTokenRepo authtokenservice.AuthTokenRepository) *Repository {
 	return &Repository{
-		CacheRepo:     cacheRepo,
+		Blacklist:     cacheRepo,
 		AuthTokenRepo: authTokenRepo,
 	}
 }

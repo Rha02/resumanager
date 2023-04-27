@@ -61,7 +61,30 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Logout"))
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" || len(authHeader) < 7 {
+		http.Error(w, "No authorization header", http.StatusUnauthorized)
+		return
+	}
+
+	refreshToken := authHeader[7:]
+
+	if _, err := m.AuthTokenRepo.ParseRefreshToken(refreshToken); err != nil {
+		http.Error(w, "Error parsing token", http.StatusUnauthorized)
+		return
+	}
+
+	// add refresh token to blacklist
+	if err := m.Blacklist.Set(refreshToken, refreshToken); err != nil {
+		http.Error(w, "Error caching token", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Successfully logged out",
+	})
 }
 
 func (m *Repository) Refresh(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +121,7 @@ func (m *Repository) CheckAuth(w http.ResponseWriter, r *http.Request) {
 	token := claims["token"].(string)
 
 	// check if user token is not blacklisted
-	m.CacheRepo.Get(token)
+	m.Blacklist.Get(token)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
