@@ -8,7 +8,7 @@ import (
 )
 
 // AuthTokenProvider is a JWT implementation of the AuthTokenRepository interface.
-type AuthTokenProvider struct {
+type authTokenProvider struct {
 	signingMethod        jwt.SigningMethod
 	accessTokenLifetime  time.Duration
 	refreshTokenLifetime time.Duration
@@ -16,7 +16,7 @@ type AuthTokenProvider struct {
 
 // NewAuthTokenProvider creates a new AuthTokenProvider.
 func NewAuthTokenProvider(signingMethod string) AuthTokenRepository {
-	return &AuthTokenProvider{
+	return &authTokenProvider{
 		signingMethod:        jwt.SigningMethodHS256,
 		accessTokenLifetime:  15 * 60,          // 15 minutes
 		refreshTokenLifetime: 24 * 7 * 60 * 60, // 24 hours
@@ -38,7 +38,7 @@ func mapToClaims(payload map[string]interface{}) jwt.MapClaims {
 }
 
 // CreateAccessToken creates an access token with the given payload.
-func (a *AuthTokenProvider) CreateAccessToken(payload map[string]interface{}) (string, error) {
+func (a *authTokenProvider) CreateAccessToken(payload map[string]interface{}) (string, error) {
 	key := getJWTSecret()
 
 	claims := mapToClaims(payload)
@@ -50,7 +50,7 @@ func (a *AuthTokenProvider) CreateAccessToken(payload map[string]interface{}) (s
 }
 
 // CreateRefreshToken creates a refresh token with the given payload.
-func (a *AuthTokenProvider) CreateRefreshToken(payload map[string]interface{}) (string, error) {
+func (a *authTokenProvider) CreateRefreshToken(payload map[string]interface{}) (string, error) {
 	key := getJWTSecret()
 
 	claims := mapToClaims(payload)
@@ -62,7 +62,7 @@ func (a *AuthTokenProvider) CreateRefreshToken(payload map[string]interface{}) (
 }
 
 // ParseAccessToken parses the given access token and returns the payload.
-func (a *AuthTokenProvider) ParseAccessToken(token string) (map[string]interface{}, error) {
+func (a *authTokenProvider) ParseAccessToken(token string) (map[string]interface{}, error) {
 	claims, err := parseToken(token, a.signingMethod)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (a *AuthTokenProvider) ParseAccessToken(token string) (map[string]interface
 }
 
 // ParseRefreshToken parses the given refresh token and returns the payload.
-func (a *AuthTokenProvider) ParseRefreshToken(token string) (map[string]interface{}, error) {
+func (a *authTokenProvider) ParseRefreshToken(token string) (map[string]interface{}, error) {
 	claims, err := parseToken(token, a.signingMethod)
 	if err != nil {
 		return nil, err

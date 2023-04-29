@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Rha02/resumanager/src/dbrepo"
 	"github.com/Rha02/resumanager/src/handlers"
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
@@ -12,11 +13,14 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	// init repos
+	dbRepo := dbrepo.NewTestDBRepo()
 	cacheRepo := cacheservice.NewTestCacheRepo()
 	authTokenRepo := authtokenservice.NewTestAuthTokenRepo()
 
 	// init handlers
 	handlers.NewHandlers(handlers.NewRepository(
+		dbRepo,
 		cacheRepo,
 		authTokenRepo,
 	))

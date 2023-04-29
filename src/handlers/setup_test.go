@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Rha02/resumanager/src/dbrepo"
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	"github.com/go-chi/chi/v5"
@@ -11,11 +12,14 @@ import (
 
 // TestMain is the entry point for all tests in this package.
 func TestMain(m *testing.M) {
+	// init repos
+	dbRepo := dbrepo.NewTestDBRepo()
 	cacheRepo := cacheservice.NewTestCacheRepo()
 	authTokenRepo := authtokenservice.NewTestAuthTokenRepo()
 
 	// init handlers
 	NewHandlers(NewRepository(
+		dbRepo,
 		cacheRepo,
 		authTokenRepo,
 	))

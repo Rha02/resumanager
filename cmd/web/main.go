@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Rha02/resumanager/src/dbrepo"
 	"github.com/Rha02/resumanager/src/handlers"
 	"github.com/Rha02/resumanager/src/middleware"
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
@@ -18,6 +19,9 @@ var PORT = ":3000"
 func main() {
 	godotenv.Load()
 
+	// init db repo
+	dbRepo := dbrepo.NewTestDBRepo()
+
 	// init blacklist for auth refresh tokens
 	blacklist := cacheservice.NewTestCacheRepo()
 
@@ -25,7 +29,7 @@ func main() {
 	authTokenRepo := authtokenservice.NewAuthTokenProvider(os.Getenv("JWT_SIGNING_ALGORITHM"))
 
 	// init handlers
-	handlers.NewHandlers(handlers.NewRepository(blacklist, authTokenRepo))
+	handlers.NewHandlers(handlers.NewRepository(dbRepo, blacklist, authTokenRepo))
 
 	router := newRouter()
 
