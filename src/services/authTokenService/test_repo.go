@@ -32,7 +32,8 @@ func (t *testAuthToken) ParseAccessToken(token string) (map[string]interface{}, 
 	}
 
 	return map[string]interface{}{
-		"test": "1",
+		"username": "testuser",
+		"password": "testpassword",
 	}, nil
 }
 
@@ -52,6 +53,7 @@ func (t *testAuthToken) ParseRefreshToken(token string) (map[string]interface{},
 	}
 
 	return map[string]interface{}{
-		"test": "1",
+		"username": "testuser",
+		"password": "testpassword",
 	}, nil
 }

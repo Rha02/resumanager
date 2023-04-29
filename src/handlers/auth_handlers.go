@@ -16,17 +16,17 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
+	var body models.User
 
-	err = json.Unmarshal(reqBody, &user)
+	err = json.Unmarshal(reqBody, &body)
 	if err != nil {
 		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
 		return
 	}
 
-	// Check if request has right fields
-	if user.Username == "" || user.Password == "" {
-		http.Error(w, "Username or password is empty", http.StatusBadRequest)
+	user, err := m.DB.GetUserByUsername(body.Username)
+	if err != nil || body.Password != user.Password {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
 
@@ -95,6 +95,17 @@ func (m *Repository) Refresh(w http.ResponseWriter, r *http.Request) {
 	}
 	refreshToken := authHeader[7:]
 
+	// check if user token is not blacklisted
+	v, err := m.Blacklist.Get(refreshToken)
+	if err != nil {
+		http.Error(w, "Error getting token from blacklist", http.StatusInternalServerError)
+		return
+	}
+	if v != "" {
+		http.Error(w, "Token is blacklisted", http.StatusUnauthorized)
+		return
+	}
+
 	claims, err := m.AuthTokenRepo.ParseRefreshToken(refreshToken)
 	if err != nil {
 		http.Error(w, "Error parsing token", http.StatusUnauthorized)
@@ -117,11 +128,6 @@ func (m *Repository) Refresh(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) CheckAuth(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	claims := ctx.Value(ContextKey{}).(map[string]interface{})
-
-	token := claims["token"].(string)
-
-	// check if user token is not blacklisted
-	m.Blacklist.Get(token)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

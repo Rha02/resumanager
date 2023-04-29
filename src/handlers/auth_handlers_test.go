@@ -15,7 +15,7 @@ var loginTests = []struct {
 }{
 	{
 		name:               "Valid login",
-		requestBody:        `{"username": "test", "password": "test"}`,
+		requestBody:        `{"username": "testuser", "password": "testpassword"}`,
 		expectedStatusCode: 200,
 	},
 	{
@@ -26,18 +26,18 @@ var loginTests = []struct {
 	{
 		name:               "Missing username",
 		requestBody:        `{"password": "test"}`,
-		expectedStatusCode: 400,
+		expectedStatusCode: 401,
 	},
 	{
 		name:               "Missing password",
 		requestBody:        `{"username": "test"}`,
-		expectedStatusCode: 400,
+		expectedStatusCode: 401,
 	},
 	{
 		name: "Error creating access token",
 		requestBody: `{
 			"username": "access_token_error",
-			"password": "test"
+			"password": "testpassword"
 		}`,
 		expectedStatusCode: 500,
 	},
@@ -45,7 +45,7 @@ var loginTests = []struct {
 		name: "Error creating refresh token",
 		requestBody: `{
 			"username": "refresh_token_error",
-			"password": "test"
+			"password": "testpassword"
 		}`,
 		expectedStatusCode: 500,
 	},
@@ -91,6 +91,20 @@ var refreshTests = []struct {
 		name: "Short authorization header",
 		requestHeaders: map[string]string{
 			"Authorization": "Bearer",
+		},
+		expectedStatusCode: http.StatusUnauthorized,
+	},
+	{
+		name: "Error getting token from blacklist",
+		requestHeaders: map[string]string{
+			"Authorization": "Bearer cache_error",
+		},
+		expectedStatusCode: http.StatusInternalServerError,
+	},
+	{
+		name: "Token found in blacklist",
+		requestHeaders: map[string]string{
+			"Authorization": "Bearer blacklisted_token",
 		},
 		expectedStatusCode: http.StatusUnauthorized,
 	},

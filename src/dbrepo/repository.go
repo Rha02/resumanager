@@ -6,5 +6,5 @@ import "github.com/Rha02/resumanager/src/models"
 type DatabaseRepository interface {
 	GetUserByID(id string) (models.User, error)
 	GetUserByUsername(username string) (models.User, error)
-	CreateUser(user models.User) (int, error)
+	CreateUser(user models.User) (string, error)
 }
