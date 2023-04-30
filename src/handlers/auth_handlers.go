@@ -57,7 +57,35 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Register"))
+	defer r.Body.Close()
+	reqBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+
+	var body models.User
+
+	if err = json.Unmarshal(reqBody, &body); err != nil {
+		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
+		return
+	}
+
+	if body.Username == "" || body.Password == "" {
+		http.Error(w, "Missing username or password", http.StatusBadRequest)
+		return
+	}
+
+	if _, err := m.DB.CreateUser(body); err != nil {
+		http.Error(w, "Error creating user", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Successfully registered",
+	})
 }
 
 func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {

@@ -189,6 +189,62 @@ var logoutTests = []struct {
 	},
 }
 
+var registerTests = []struct {
+	name               string
+	requestBody        string
+	expectedStatusCode int
+}{
+	{
+		name: "Valid register",
+		requestBody: `{
+			"username": "testuser",
+			"password": "testpassword"
+		}`,
+		expectedStatusCode: http.StatusOK,
+	},
+	{
+		name:               "Wrong request body format",
+		requestBody:        `{"username": "test", "password": "test"`,
+		expectedStatusCode: http.StatusBadRequest,
+	},
+	{
+		name:               "Missing username",
+		requestBody:        `{"password": "test"}`,
+		expectedStatusCode: http.StatusBadRequest,
+	},
+	{
+		name:               "Missing password",
+		requestBody:        `{"username": "test"}`,
+		expectedStatusCode: http.StatusBadRequest,
+	},
+	{
+		name: "Error creating user",
+		requestBody: `{
+			"username": "error",
+			"password": "testpassword"
+		}`,
+		expectedStatusCode: http.StatusInternalServerError,
+	},
+}
+
+func TestRegister(t *testing.T) {
+	handler := getRoutes()
+
+	for _, tt := range registerTests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, _ := http.NewRequest("POST", "/register", strings.NewReader(tt.requestBody))
+			req.Header.Set("Content-Type", "application/json")
+
+			rr := httptest.NewRecorder()
+			handler.ServeHTTP(rr, req)
+
+			if rr.Code != tt.expectedStatusCode {
+				t.Errorf("handler returned wrong status code: got %v, want %v", rr.Code, tt.expectedStatusCode)
+			}
+		})
+	}
+}
+
 func TestLogout(t *testing.T) {
 	handler := getRoutes()
 

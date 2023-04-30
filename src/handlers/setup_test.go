@@ -50,6 +50,7 @@ func getRoutes() *chi.Mux {
 
 	mux.Post("/login", Repo.Login)
 	mux.Post("/refresh", Repo.Refresh)
+	mux.Post("/register", Repo.Register)
 	mux.Post("/logout", Repo.Logout)
 
 	return mux
