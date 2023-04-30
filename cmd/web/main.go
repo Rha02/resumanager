@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Rha02/resumanager/src/dbrepo"
+	"github.com/Rha02/resumanager/src/driver"
 	"github.com/Rha02/resumanager/src/handlers"
 	"github.com/Rha02/resumanager/src/middleware"
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
@@ -19,8 +20,15 @@ var PORT = ":3000"
 func main() {
 	godotenv.Load()
 
+	db, err := driver.ConnectSQL(os.Getenv("DB_CONNECTION"))
+	if err != nil {
+		log.Fatal("Cannot connect to database! Dying...")
+	}
+
+	defer db.Close()
+
 	// init db repo
-	dbRepo := dbrepo.NewTestDBRepo()
+	dbRepo := dbrepo.NewPostgresRepo(db.SQL)
 
 	// init blacklist for auth refresh tokens
 	blacklist := cacheservice.NewTestCacheRepo()
