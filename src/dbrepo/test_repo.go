@@ -2,60 +2,48 @@ package dbrepo
 
 import (
 	"errors"
-	"strconv"
 
 	"github.com/Rha02/resumanager/src/models"
 )
 
-type testDBRepo struct {
-	users []models.User
-}
+type testDBRepo struct{}
 
 // NewTestDBRepo creates a new test database repository
 func NewTestDBRepo() DatabaseRepository {
-	return &testDBRepo{
-		users: []models.User{},
-	}
+	return &testDBRepo{}
 }
 
 // GetUserByID gets a user by ID
 func (m *testDBRepo) GetUserByID(id string) (models.User, error) {
 	var user models.User
-
-	userID, err := strconv.Atoi(id)
-	if err != nil {
-		return user, err
+	if id == "db_get_user_error" {
+		return user, errors.New("error getting user")
 	}
 
-	for _, u := range m.users {
-		if u.ID == userID {
-			user = u
-			break
-		}
-	}
+	user.ID = 1
+	user.Username = "testuser"
 
 	return user, nil
 }
 
 // GetUserByUsername gets a user by username
 func (m *testDBRepo) GetUserByUsername(username string) (models.User, error) {
-	for _, u := range m.users {
-		if u.Username == username {
-			return u, nil
-		}
+	var user models.User
+	if username == "db_get_user_error" {
+		return user, errors.New("error getting user")
 	}
 
-	return models.User{}, errors.New("user not found")
+	user.Username = username
+	user.Password = "testpassword"
+
+	return user, nil
 }
 
 // CreateUser creates a new user
 func (m *testDBRepo) CreateUser(user models.User) (string, error) {
-	user.ID = len(m.users) + 1
-	m.users = append(m.users, user)
-
-	if user.Username == "error" {
+	if user.Username == "db_create_user_error" {
 		return "", errors.New("error creating user")
 	}
 
-	return strconv.Itoa(user.ID), nil
+	return "1", nil
 }

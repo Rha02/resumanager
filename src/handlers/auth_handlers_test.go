@@ -220,7 +220,7 @@ var registerTests = []struct {
 	{
 		name: "Error creating user",
 		requestBody: `{
-			"username": "error",
+			"username": "db_create_user_error",
 			"password": "testpassword"
 		}`,
 		expectedStatusCode: http.StatusInternalServerError,
