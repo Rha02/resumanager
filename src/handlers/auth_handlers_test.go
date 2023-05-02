@@ -25,12 +25,27 @@ var loginTests = []struct {
 	},
 	{
 		name:               "Missing username",
-		requestBody:        `{"password": "test"}`,
-		expectedStatusCode: 401,
+		requestBody:        `{"password": "testpassword"}`,
+		expectedStatusCode: 400,
 	},
 	{
 		name:               "Missing password",
-		requestBody:        `{"username": "test"}`,
+		requestBody:        `{"username": "testuser"}`,
+		expectedStatusCode: 400,
+	},
+	{
+		name:               "Short username",
+		requestBody:        `{"username": "te", password": "testpassword"}`,
+		expectedStatusCode: 400,
+	},
+	{
+		name:               "Short password",
+		requestBody:        `{"username": "testuser", password": "test"}`,
+		expectedStatusCode: 400,
+	},
+	{
+		name:               "Invalid credentials",
+		requestBody:        `{"username": "db_get_user_error", "password": "testpassword" }`,
 		expectedStatusCode: 401,
 	},
 	{
@@ -209,13 +224,23 @@ var registerTests = []struct {
 	},
 	{
 		name:               "Missing username",
-		requestBody:        `{"password": "test"}`,
+		requestBody:        `{"password": "testpassword"}`,
 		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Missing password",
-		requestBody:        `{"username": "test"}`,
+		requestBody:        `{"username": "testuser"}`,
 		expectedStatusCode: http.StatusBadRequest,
+	},
+	{
+		name:               "Short username",
+		requestBody:        `{"username": "te", password": "testpassword"}`,
+		expectedStatusCode: 400,
+	},
+	{
+		name:               "Short password",
+		requestBody:        `{"username": "testuser", password": "test"}`,
+		expectedStatusCode: 400,
 	},
 	{
 		name: "Error creating user",

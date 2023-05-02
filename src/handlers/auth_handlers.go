@@ -3,12 +3,21 @@ package handlers
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/Rha02/resumanager/src/models"
 )
 
 func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
+	body := struct {
+		Username string `json:"username" validate:"required,min=3,max=32"`
+		Password string `json:"password" validate:"required,min=8,max=32"`
+	}{
+		Username: "",
+		Password: "",
+	}
+
 	defer r.Body.Close()
 	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -16,11 +25,14 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body models.User
-
 	err = json.Unmarshal(reqBody, &body)
 	if err != nil {
 		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
+		return
+	}
+
+	if err = m.validator.Struct(body); err != nil {
+		http.Error(w, "Error validating request body", http.StatusBadRequest)
 		return
 	}
 
@@ -57,6 +69,14 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
+	body := struct {
+		Username string `json:"username" validate:"required,min=3,max=32"`
+		Password string `json:"password" validate:"required,min=8,max=32"`
+	}{
+		Username: "",
+		Password: "",
+	}
+
 	defer r.Body.Close()
 	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -64,19 +84,23 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body models.User
-
 	if err = json.Unmarshal(reqBody, &body); err != nil {
 		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
 		return
 	}
 
-	if body.Username == "" || body.Password == "" {
-		http.Error(w, "Missing username or password", http.StatusBadRequest)
+	if err = m.validator.Struct(body); err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Error validating request body", http.StatusBadRequest)
 		return
 	}
 
-	if _, err := m.DB.CreateUser(body); err != nil {
+	user := models.User{
+		Username: body.Username,
+		Password: body.Password,
+	}
+
+	if _, err := m.DB.CreateUser(user); err != nil {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
