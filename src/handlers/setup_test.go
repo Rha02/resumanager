@@ -14,11 +14,11 @@ import (
 func TestMain(m *testing.M) {
 	// init repos
 	dbRepo := dbrepo.NewTestDBRepo()
-	cacheRepo := cacheservice.NewTestCacheRepo()
+	cacheRepo := cacheservice.NewTestRepo()
 	authTokenRepo := authtokenservice.NewTestAuthTokenRepo()
 
 	// init cacheRepo data
-	cacheRepo.Set("blacklisted_token", "true")
+	cacheRepo.Set("blacklisted_token", "true", 0)
 
 	// init handlers
 	NewHandlers(NewRepository(

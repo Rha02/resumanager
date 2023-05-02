@@ -31,7 +31,8 @@ func main() {
 	dbRepo := dbrepo.NewPostgresRepo(db.SQL)
 
 	// init blacklist for auth refresh tokens
-	blacklist := cacheservice.NewTestCacheRepo()
+	blacklist := cacheservice.NewRedisRepo(os.Getenv("REDIS_ADDRESS"), os.Getenv("REDIS_PASSWORD"))
+	defer blacklist.Close()
 
 	// init auth token service
 	authTokenRepo := authtokenservice.NewAuthTokenProvider(os.Getenv("JWT_SIGNING_ALGORITHM"))

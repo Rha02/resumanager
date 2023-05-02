@@ -123,7 +123,7 @@ func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// add refresh token to blacklist
-	if err := m.Blacklist.Set(refreshToken, refreshToken); err != nil {
+	if err := m.Blacklist.Set(refreshToken, "", 24*7*60*60); err != nil {
 		http.Error(w, "Error caching token", http.StatusInternalServerError)
 		return
 	}

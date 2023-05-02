@@ -15,7 +15,7 @@ import (
 func TestMain(m *testing.M) {
 	// init repos
 	dbRepo := dbrepo.NewTestDBRepo()
-	cacheRepo := cacheservice.NewTestCacheRepo()
+	cacheRepo := cacheservice.NewTestRepo()
 	authTokenRepo := authtokenservice.NewTestAuthTokenRepo()
 
 	// init handlers
