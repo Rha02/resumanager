@@ -27,11 +27,11 @@ func (m *postgresDBRepo) GetUserByID(id string) (models.User, error) {
 
 	var user models.User
 
-	stmt := `SELECT id, username, password_hash FROM users WHERE id = $1`
+	stmt := `SELECT id, email, username, password_hash FROM users WHERE id = $1`
 
 	row := m.DB.QueryRowContext(ctx, stmt, id)
 
-	if err := row.Scan(&user.ID, &user.Username, &user.Password); err != nil {
+	if err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password); err != nil {
 		return user, err
 	}
 
@@ -39,21 +39,21 @@ func (m *postgresDBRepo) GetUserByID(id string) (models.User, error) {
 }
 
 // GetUserByUsername returns a user by username
-func (m *postgresDBRepo) GetUserByUsername(username string) (models.User, error) {
+func (m *postgresDBRepo) GetUserByEmail(email string) (models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	var user models.User
 
 	stmt := `
-		SELECT id, username, password_hash
+		SELECT id, email, username, password_hash
 		FROM users
-		WHERE username = $1
+		WHERE email = $1
 	`
 
-	row := m.DB.QueryRowContext(ctx, stmt, username)
+	row := m.DB.QueryRowContext(ctx, stmt, email)
 
-	if err := row.Scan(&user.ID, &user.Username, &user.Password); err != nil {
+	if err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password); err != nil {
 		return user, err
 	}
 
@@ -66,12 +66,12 @@ func (m *postgresDBRepo) CreateUser(user models.User) (string, error) {
 	defer cancel()
 
 	stmt := `
-		INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id
+		INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING id
 	`
 
 	var newID string
 
-	if err := m.DB.QueryRowContext(ctx, stmt, user.Username, user.Password).Scan(&newID); err != nil {
+	if err := m.DB.QueryRowContext(ctx, stmt, user.Email, user.Username, user.Password).Scan(&newID); err != nil {
 		return "", err
 	}
 

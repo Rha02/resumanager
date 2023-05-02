@@ -15,43 +15,43 @@ var loginTests = []struct {
 }{
 	{
 		name:               "Valid login",
-		requestBody:        `{"username": "testuser", "password": "testpassword"}`,
+		requestBody:        `{"email": "user@test.loc", "password": "testpassword"}`,
 		expectedStatusCode: 200,
 	},
 	{
 		name:               "Wrong request body format",
-		requestBody:        `{"username": "test", "password": "test"`,
+		requestBody:        `{"email": "user@test.loc", "password": "test"`,
 		expectedStatusCode: 400,
 	},
 	{
-		name:               "Missing username",
+		name:               "Missing email",
 		requestBody:        `{"password": "testpassword"}`,
 		expectedStatusCode: 400,
 	},
 	{
 		name:               "Missing password",
-		requestBody:        `{"username": "testuser"}`,
+		requestBody:        `{"email": "user@test.loc"}`,
 		expectedStatusCode: 400,
 	},
 	{
-		name:               "Short username",
-		requestBody:        `{"username": "te", password": "testpassword"}`,
+		name:               "Not in email format",
+		requestBody:        `{"email": "notemail", password": "testpassword"}`,
 		expectedStatusCode: 400,
 	},
 	{
 		name:               "Short password",
-		requestBody:        `{"username": "testuser", password": "test"}`,
+		requestBody:        `{"email": "user@test.loc", password": "test"}`,
 		expectedStatusCode: 400,
 	},
 	{
 		name:               "Invalid credentials",
-		requestBody:        `{"username": "db_get_user_error", "password": "testpassword" }`,
+		requestBody:        `{"email": "db_get_user_error@test.loc", "password": "testpassword" }`,
 		expectedStatusCode: 401,
 	},
 	{
 		name: "Error creating access token",
 		requestBody: `{
-			"username": "access_token_error",
+			"email": "access_token_error@test.loc",
 			"password": "testpassword"
 		}`,
 		expectedStatusCode: 500,
@@ -59,7 +59,7 @@ var loginTests = []struct {
 	{
 		name: "Error creating refresh token",
 		requestBody: `{
-			"username": "refresh_token_error",
+			"email": "refresh_token_error@test.loc",
 			"password": "testpassword"
 		}`,
 		expectedStatusCode: 500,
@@ -212,6 +212,7 @@ var registerTests = []struct {
 	{
 		name: "Valid register",
 		requestBody: `{
+			"email": "user@test.loc",
 			"username": "testuser",
 			"password": "testpassword"
 		}`,
@@ -219,32 +220,43 @@ var registerTests = []struct {
 	},
 	{
 		name:               "Wrong request body format",
-		requestBody:        `{"username": "test", "password": "test"`,
+		requestBody:        `{"email": "user@test.loc", "username": "test", "password": "test"`,
+		expectedStatusCode: http.StatusBadRequest,
+	},
+	{
+		name:               "Missing email",
+		requestBody:        `{"username": "testuser","password": "testpassword"}`,
 		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Missing username",
-		requestBody:        `{"password": "testpassword"}`,
+		requestBody:        `{"email": "user@test.loc", "password": "testpassword"}`,
 		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Missing password",
-		requestBody:        `{"username": "testuser"}`,
+		requestBody:        `{"email": "user@test.loc", "username": "testuser"}`,
+		expectedStatusCode: http.StatusBadRequest,
+	},
+	{
+		name:               "Not in email format",
+		requestBody:        `{"email": "notemail", "username": "test", "password": "test"}`,
 		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Short username",
-		requestBody:        `{"username": "te", password": "testpassword"}`,
+		requestBody:        `{"email": "user@test.loc", "username": "te", password": "testpassword"}`,
 		expectedStatusCode: 400,
 	},
 	{
 		name:               "Short password",
-		requestBody:        `{"username": "testuser", password": "test"}`,
+		requestBody:        `{"email": "user@test.loc", "username": "testuser", password": "test"}`,
 		expectedStatusCode: 400,
 	},
 	{
 		name: "Error creating user",
 		requestBody: `{
+			"email": "user@test.loc",
 			"username": "db_create_user_error",
 			"password": "testpassword"
 		}`,

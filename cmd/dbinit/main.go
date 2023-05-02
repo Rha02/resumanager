@@ -38,12 +38,13 @@ func initUsersTable(db *sql.DB) error {
 		DROP TABLE IF EXISTS users;
 		CREATE TABLE users (
 			id SERIAL PRIMARY KEY,
+			email VARCHAR(254) NOT NULL,
 			username VARCHAR(50) NOT NULL,
 			password_hash VARCHAR(100) NOT NULL,
 			created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 			updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 		);
-		CREATE UNIQUE INDEX idx_users_username ON users(username);
+		CREATE UNIQUE INDEX users_email_idx ON users (email);
 	`
 
 	_, err := db.Exec(stmt)

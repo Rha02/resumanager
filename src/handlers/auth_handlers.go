@@ -11,12 +11,9 @@ import (
 
 func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 	body := struct {
-		Username string `json:"username" validate:"required,min=3,max=32"`
+		Email    string `json:"email" validate:"required,min=3,max=254,email"`
 		Password string `json:"password" validate:"required,min=8,max=32"`
-	}{
-		Username: "",
-		Password: "",
-	}
+	}{}
 
 	defer r.Body.Close()
 	reqBody, err := io.ReadAll(r.Body)
@@ -36,7 +33,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := m.DB.GetUserByUsername(body.Username)
+	user, err := m.DB.GetUserByEmail(body.Email)
 	if err != nil || body.Password != user.Password {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
@@ -70,12 +67,10 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 	body := struct {
+		Email    string `json:"email" validate:"required,min=3,max=254,email"`
 		Username string `json:"username" validate:"required,min=3,max=32"`
 		Password string `json:"password" validate:"required,min=8,max=32"`
-	}{
-		Username: "",
-		Password: "",
-	}
+	}{}
 
 	defer r.Body.Close()
 	reqBody, err := io.ReadAll(r.Body)
@@ -96,6 +91,7 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := models.User{
+		Email:    body.Email,
 		Username: body.Username,
 		Password: body.Password,
 	}

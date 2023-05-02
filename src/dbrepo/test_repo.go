@@ -20,20 +20,30 @@ func (m *testDBRepo) GetUserByID(id string) (models.User, error) {
 		return user, errors.New("error getting user")
 	}
 
-	user.ID = 1
+	user.Email = "user@test.loc"
 	user.Username = "testuser"
+	user.Password = "testpassword"
 
 	return user, nil
 }
 
 // GetUserByUsername gets a user by username
-func (m *testDBRepo) GetUserByUsername(username string) (models.User, error) {
+func (m *testDBRepo) GetUserByEmail(email string) (models.User, error) {
 	var user models.User
-	if username == "db_get_user_error" {
+	if email == "db_get_user_error@test.loc" {
 		return user, errors.New("error getting user")
 	}
 
-	user.Username = username
+	if email == "access_token_error@test.loc" {
+		user.Username = "access_token_error"
+	} else if email == "refresh_token_error@test.loc" {
+		user.Username = "refresh_token_error"
+	} else {
+		user.Username = "testuser"
+	}
+
+	user.ID = 1
+	user.Email = email
 	user.Password = "testpassword"
 
 	return user, nil
