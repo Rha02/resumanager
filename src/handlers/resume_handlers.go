@@ -3,8 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"strings"
 
+	"github.com/Rha02/resumanager/src/models"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -65,7 +68,68 @@ func (m *Repository) GetResume(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode("PostResume")
+	file, fileHeader, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "Error reading file from form", http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	if fileHeader == nil {
+		http.Error(w, "Error reading file from form", http.StatusInternalServerError)
+		return
+	}
+
+	extension := filepath.Ext(fileHeader.Filename)
+	if extension != ".pdf" {
+		http.Error(w, "File must be a pdf", http.StatusBadRequest)
+		return
+	}
+
+	name := strings.TrimSuffix(fileHeader.Filename, extension)
+
+	// Set max size to 10MB
+	r.ParseMultipartForm(10 << 20)
+
+	fileName := "randomname" + extension
+
+	ctx := r.Context()
+	userID := ctx.Value("userID").(string)
+	userIDint, err := strconv.Atoi(userID)
+	if err != nil {
+		http.Error(w, "Error converting userID to int", http.StatusInternalServerError)
+		return
+	}
+
+	isMaster := r.FormValue("is_master")
+	isMasterBool, err := strconv.ParseBool(isMaster)
+	if err != nil {
+		http.Error(w, "Error converting is_master to bool", http.StatusInternalServerError)
+		return
+	}
+
+	fileURL, err := m.FileStorage.Upload(fileName)
+	if err != nil {
+		http.Error(w, "Error uploading file to storage", http.StatusInternalServerError)
+		return
+	}
+
+	resume := models.Resume{
+		Name:     name,
+		FileName: fileHeader.Filename,
+		UserID:   userIDint,
+		Size:     int(fileHeader.Size),
+		IsMaster: isMasterBool,
+		FileURL:  fileURL,
+	}
+
+	if err := m.DB.InsertResume(resume); err != nil {
+		http.Error(w, "Error creating resume in database", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resume)
 }
 
 func (m *Repository) DeleteResume(w http.ResponseWriter, r *http.Request) {
