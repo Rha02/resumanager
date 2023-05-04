@@ -11,6 +11,7 @@ import (
 	"github.com/Rha02/resumanager/src/middleware"
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
+	filestorageservice "github.com/Rha02/resumanager/src/services/fileStorageService"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )
@@ -34,11 +35,16 @@ func main() {
 	blacklist := cacheservice.NewRedisRepo(os.Getenv("REDIS_ADDRESS"), os.Getenv("REDIS_PASSWORD"))
 	defer blacklist.Close()
 
+	// init file storage service
+	fileStorageRepo := filestorageservice.NewTestFileStorage()
+
 	// init auth token service
 	authTokenRepo := authtokenservice.NewAuthTokenProvider(os.Getenv("JWT_SIGNING_ALGORITHM"))
 
 	// init handlers
-	handlers.NewHandlers(handlers.NewRepository(dbRepo, blacklist, authTokenRepo))
+	handlers.NewHandlers(handlers.NewRepository(
+		dbRepo, blacklist, fileStorageRepo, authTokenRepo,
+	))
 
 	router := newRouter()
 

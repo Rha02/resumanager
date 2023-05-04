@@ -9,6 +9,7 @@ import (
 	"github.com/Rha02/resumanager/src/handlers"
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
+	filestorageservice "github.com/Rha02/resumanager/src/services/fileStorageService"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -16,12 +17,14 @@ func TestMain(m *testing.M) {
 	// init repos
 	dbRepo := dbrepo.NewTestDBRepo()
 	cacheRepo := cacheservice.NewTestRepo()
+	fileStorageRepo := filestorageservice.NewTestFileStorage()
 	authTokenRepo := authtokenservice.NewTestAuthTokenRepo()
 
 	// init handlers
 	handlers.NewHandlers(handlers.NewRepository(
 		dbRepo,
 		cacheRepo,
+		fileStorageRepo,
 		authTokenRepo,
 	))
 
