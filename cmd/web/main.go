@@ -63,6 +63,11 @@ func newRouter() *chi.Mux {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.RequiresAuthentication(handlers.Repo))
 		r.Get("/checkauth", handlers.Repo.CheckAuth)
+
+		r.Get("/resumes", handlers.Repo.GetUserResumes)
+		r.Get("/resumes/{resumeID}", handlers.Repo.GetResume)
+		r.Post("/resumes", handlers.Repo.PostResume)
+		r.Delete("/resumes/{resumeID}", handlers.Repo.DeleteResume)
 	})
 
 	return r
