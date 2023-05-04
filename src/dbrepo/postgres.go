@@ -77,3 +77,23 @@ func (m *postgresDBRepo) CreateUser(user models.User) (string, error) {
 
 	return newID, nil
 }
+
+// GetUserResumes returns all resumes for a user
+func (m *postgresDBRepo) GetUserResumes(userID string) ([]models.Resume, error) {
+	return nil, nil
+}
+
+// GetResume returns a resume by ID
+func (m *postgresDBRepo) GetResume(id string) (models.Resume, error) {
+	return models.Resume{}, nil
+}
+
+// InsertResume inserts a new resume
+func (m *postgresDBRepo) InsertResume(resume models.Resume) error {
+	return nil
+}
+
+// DeleteResume deletes a resume
+func (m *postgresDBRepo) DeleteResume(id string) error {
+	return nil
+}

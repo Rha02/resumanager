@@ -57,3 +57,23 @@ func (m *testDBRepo) CreateUser(user models.User) (string, error) {
 
 	return "1", nil
 }
+
+// GetUserResumes gets all resumes for a user
+func (m *testDBRepo) GetUserResumes(userID string) ([]models.Resume, error) {
+	return nil, nil
+}
+
+// GetResume gets a resume by ID
+func (m *testDBRepo) GetResume(id string) (models.Resume, error) {
+	return models.Resume{}, nil
+}
+
+// InsertResume inserts a new resume
+func (m *testDBRepo) InsertResume(resume models.Resume) error {
+	return nil
+}
+
+// DeleteResume deletes a resume
+func (m *testDBRepo) DeleteResume(id string) error {
+	return nil
+}
