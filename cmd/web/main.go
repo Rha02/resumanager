@@ -36,7 +36,10 @@ func main() {
 	defer blacklist.Close()
 
 	// init file storage service
-	fileStorageRepo := filestorageservice.NewTestFileStorage()
+	fileStorageRepo := filestorageservice.NewAzureFileStorage(
+		os.Getenv("AZURE_STORAGE_ACCOUNT_NAME"),
+		os.Getenv("AZURE_STORAGE_ACCOUNT_KEY"),
+	)
 
 	// init auth token service
 	authTokenRepo := authtokenservice.NewAuthTokenProvider(os.Getenv("JWT_SIGNING_ALGORITHM"))

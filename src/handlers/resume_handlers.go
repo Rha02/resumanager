@@ -91,24 +91,24 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 	// Set max size to 10MB
 	r.ParseMultipartForm(10 << 20)
 
-	fileName := "randomname" + extension
+	filename := "randomname" + extension
 
 	ctx := r.Context()
-	userID := ctx.Value("userID").(string)
-	userIDint, err := strconv.Atoi(userID)
-	if err != nil {
-		http.Error(w, "Error converting userID to int", http.StatusInternalServerError)
-		return
-	}
+	userID := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	userIDint := int(userID)
 
 	isMaster := r.FormValue("is_master")
+	if isMaster == "" {
+		http.Error(w, "Error reading is_master from form", http.StatusInternalServerError)
+		return
+	}
 	isMasterBool, err := strconv.ParseBool(isMaster)
 	if err != nil {
 		http.Error(w, "Error converting is_master to bool", http.StatusInternalServerError)
 		return
 	}
 
-	fileURL, err := m.FileStorage.Upload(fileName)
+	fileURL, err := m.FileStorage.Upload(file, filename)
 	if err != nil {
 		http.Error(w, "Error uploading file to storage", http.StatusInternalServerError)
 		return

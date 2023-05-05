@@ -1,19 +1,21 @@
 package filestorageservice
 
-type TestFileStorage struct{}
+import "io"
+
+type testFileStorage struct{}
 
 func NewTestFileStorage() FileStorageRepository {
-	return &TestFileStorage{}
+	return &testFileStorage{}
 }
 
-func (m *TestFileStorage) GetFileURL(name string) (string, error) {
+func (m *testFileStorage) GetFileURL(name string) (string, error) {
 	return "GetFileURL", nil
 }
 
-func (m *TestFileStorage) Upload(file string) (string, error) {
+func (m *testFileStorage) Upload(file io.Reader, filename string) (string, error) {
 	return "Upload", nil
 }
 
-func (m *TestFileStorage) Delete(name string) (string, error) {
+func (m *testFileStorage) Delete(name string) (string, error) {
 	return "Delete", nil
 }
