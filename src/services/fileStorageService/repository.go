@@ -3,7 +3,7 @@ package filestorageservice
 import "io"
 
 type FileStorageRepository interface {
-	GetFileURL(name string) (string, error)
-	Upload(file io.Reader, filename string) (string, error)
+	GetFileURL(name string) string
+	Upload(file io.Reader) (string, error)
 	Delete(name string) (string, error)
 }

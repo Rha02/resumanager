@@ -8,11 +8,11 @@ func NewTestFileStorage() FileStorageRepository {
 	return &testFileStorage{}
 }
 
-func (m *testFileStorage) GetFileURL(name string) (string, error) {
-	return "GetFileURL", nil
+func (m *testFileStorage) GetFileURL(name string) string {
+	return "GetFileURL"
 }
 
-func (m *testFileStorage) Upload(file io.Reader, filename string) (string, error) {
+func (m *testFileStorage) Upload(file io.Reader) (string, error) {
 	return "Upload", nil
 }
 

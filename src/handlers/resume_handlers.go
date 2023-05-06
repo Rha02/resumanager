@@ -5,11 +5,15 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/Rha02/resumanager/src/models"
 	"github.com/go-chi/chi/v5"
 )
+
+type resStruct struct {
+	models.Resume
+	FileURL string `json:"file_url"`
+}
 
 func (m *Repository) GetUserResumes(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -21,17 +25,20 @@ func (m *Repository) GetUserResumes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	res := make(map[string]resStruct)
+
 	// add file url to each resume
 	for _, resume := range resumes {
-		resume.FileURL, err = m.FileStorage.GetFileURL(resume.FileName)
-		if err != nil {
-			http.Error(w, "Error fetching resumes from database", http.StatusInternalServerError)
-			return
+		fileURL := m.FileStorage.GetFileURL(resume.FileName)
+
+		res[resume.FileName] = resStruct{
+			Resume:  resume,
+			FileURL: fileURL,
 		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resumes)
+	json.NewEncoder(w).Encode(res)
 }
 
 func (m *Repository) GetResume(w http.ResponseWriter, r *http.Request) {
@@ -57,14 +64,15 @@ func (m *Repository) GetResume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resume.FileURL, err = m.FileStorage.GetFileURL(resume.FileName)
-	if err != nil {
-		http.Error(w, "Error fetching resume from database", http.StatusInternalServerError)
-		return
-	}
+	fileURL := m.FileStorage.GetFileURL(resume.FileName)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resume)
+	json.NewEncoder(w).Encode(
+		resStruct{
+			Resume:  resume,
+			FileURL: fileURL,
+		},
+	)
 }
 
 func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
@@ -86,12 +94,8 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := strings.TrimSuffix(fileHeader.Filename, extension)
-
 	// Set max size to 10MB
 	r.ParseMultipartForm(10 << 20)
-
-	filename := "randomname" + extension
 
 	ctx := r.Context()
 	userID := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
@@ -108,19 +112,20 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileURL, err := m.FileStorage.Upload(file, filename)
+	filename, err := m.FileStorage.Upload(file)
 	if err != nil {
 		http.Error(w, "Error uploading file to storage", http.StatusInternalServerError)
 		return
 	}
 
+	fileURL := m.FileStorage.GetFileURL(filename)
+
 	resume := models.Resume{
-		Name:     name,
-		FileName: fileHeader.Filename,
+		Name:     fileHeader.Filename,
+		FileName: filename,
 		UserID:   userIDint,
 		Size:     int(fileHeader.Size),
 		IsMaster: isMasterBool,
-		FileURL:  fileURL,
 	}
 
 	if err := m.DB.InsertResume(resume); err != nil {
@@ -129,7 +134,12 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resume)
+	json.NewEncoder(w).Encode(
+		resStruct{
+			Resume:  resume,
+			FileURL: fileURL,
+		},
+	)
 }
 
 func (m *Repository) DeleteResume(w http.ResponseWriter, r *http.Request) {

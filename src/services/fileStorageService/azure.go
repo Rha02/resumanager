@@ -4,16 +4,18 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/google/uuid"
 )
 
 const (
 	timeout       = 10 * time.Second
 	containerName = "resumes"
 )
+
+var accountURL string
 
 type azureFileStorage struct {
 	client *azblob.Client
@@ -25,7 +27,7 @@ func NewAzureFileStorage(accountName string, accountKey string) FileStorageRepos
 		panic(err)
 	}
 
-	accountURL := fmt.Sprintf("https://%s.blob.core.windows.net", accountName)
+	accountURL = fmt.Sprintf("https://%s.blob.core.windows.net", accountName)
 
 	client, err := azblob.NewClientWithSharedKeyCredential(accountURL, cred, nil)
 	if err != nil {
@@ -37,21 +39,23 @@ func NewAzureFileStorage(accountName string, accountKey string) FileStorageRepos
 	}
 }
 
-func (m *azureFileStorage) GetFileURL(name string) (string, error) {
-	return "GetFileURL", nil
+func (m *azureFileStorage) GetFileURL(name string) string {
+	fileURL := fmt.Sprintf("%s/%s/%s", accountURL, containerName, name)
+	return fileURL
 }
 
-func (m *azureFileStorage) Upload(file io.Reader, filename string) (string, error) {
+func (m *azureFileStorage) Upload(file io.Reader) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	res, err := m.client.UploadStream(ctx, containerName, filename, file, nil)
+	filename := uuid.New().String() + ".pdf"
+
+	_, err := m.client.UploadStream(ctx, containerName, filename, file, nil)
 	if err != nil {
 		panic(err)
 	}
-	log.Println(res)
 
-	return "Upload", nil
+	return filename, nil
 }
 
 func (m *azureFileStorage) Delete(name string) (string, error) {
