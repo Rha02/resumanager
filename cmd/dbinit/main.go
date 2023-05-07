@@ -23,11 +23,16 @@ func main() {
 	defer db.Close()
 
 	log.Println("Initializing users table...")
-	err = initUsersTable(db.SQL)
-	if err != nil {
+	if err = initUsersTable(db.SQL); err != nil {
 		panic(err)
 	}
 	log.Println("Users table initialized successfully")
+
+	log.Println("Initializing resumes table...")
+	if err = initResumesTable(db.SQL); err != nil {
+		panic(err)
+	}
+	log.Println("Resumes table initialized successfully")
 
 	log.Println("Database initialization completed successfully")
 }
@@ -52,5 +57,27 @@ func initUsersTable(db *sql.DB) error {
 		return err
 	}
 
+	return nil
+}
+
+// initResumesTable creates the resumes table in the database
+func initResumesTable(db *sql.DB) error {
+	stmt := `
+		DROP TABLE IF EXISTS resumes;
+		CREATE TABLE resumes (
+			id SERIAL PRIMARY KEY,
+			user_id INT NOT NULL,
+			name VARCHAR(50) NOT NULL,
+			file_name VARCHAR(100) NOT NULL,
+			is_master BOOLEAN NOT NULL DEFAULT FALSE,
+			size INT NOT NULL,
+			FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+		);
+	`
+
+	_, err := db.Exec(stmt)
+	if err != nil {
+		return err
+	}
 	return nil
 }
