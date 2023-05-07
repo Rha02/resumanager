@@ -17,9 +17,10 @@ type resStruct struct {
 
 func (m *Repository) GetUserResumes(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID := ctx.Value("userID").(string)
+	userID := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	userIDstr := strconv.Itoa(int(userID))
 
-	resumes, err := m.DB.GetUserResumes(userID)
+	resumes, err := m.DB.GetUserResumes(userIDstr)
 	if err != nil {
 		http.Error(w, "Error fetching resumes from database", http.StatusInternalServerError)
 		return
@@ -43,13 +44,8 @@ func (m *Repository) GetUserResumes(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) GetResume(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID := ctx.Value("userID").(string)
-
-	userIDint, err := strconv.Atoi(userID)
-	if err != nil {
-		http.Error(w, "Error converting userID to int", http.StatusInternalServerError)
-		return
-	}
+	userID := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	userIDint := int(userID)
 
 	resumeID := chi.URLParam(r, "resumeID")
 
@@ -144,12 +140,8 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) DeleteResume(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID := ctx.Value("userID").(string)
-	userIDint, err := strconv.Atoi(userID)
-	if err != nil {
-		http.Error(w, "Error converting userID to int", http.StatusInternalServerError)
-		return
-	}
+	userID := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	userIDint := int(userID)
 
 	resumeID := chi.URLParam(r, "resumeID")
 
