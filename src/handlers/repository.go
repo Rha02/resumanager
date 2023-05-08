@@ -5,6 +5,7 @@ import (
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	filestorageservice "github.com/Rha02/resumanager/src/services/fileStorageService"
+	hashservice "github.com/Rha02/resumanager/src/services/hashService"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -15,6 +16,7 @@ type Repository struct {
 	Blacklist     cacheservice.CacheRepository
 	FileStorage   filestorageservice.FileStorageRepository
 	AuthTokenRepo authtokenservice.AuthTokenRepository
+	hashRepo      hashservice.HashRepository
 	validator     validator.Validate
 }
 
@@ -31,6 +33,7 @@ func NewRepository(
 		Blacklist:     cacheRepo,
 		FileStorage:   fileStorage,
 		AuthTokenRepo: authTokenRepo,
+		hashRepo:      hashservice.NewBcryptRepo(),
 		validator:     *validator.New(),
 	}
 }
