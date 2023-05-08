@@ -34,7 +34,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := m.DB.GetUserByEmail(body.Email)
-	if err != nil || body.Password != user.Password {
+	if err != nil || !m.hashRepo.ComparePasswords(user.Password, body.Password) {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
@@ -90,10 +90,16 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	passwordHash, err := m.hashRepo.HashPassword(body.Password)
+	if err != nil {
+		http.Error(w, "Error hashing password", http.StatusInternalServerError)
+		return
+	}
+
 	user := models.User{
 		Email:    body.Email,
 		Username: body.Username,
-		Password: body.Password,
+		Password: passwordHash,
 	}
 
 	if _, err := m.DB.CreateUser(user); err != nil {
