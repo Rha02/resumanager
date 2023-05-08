@@ -80,20 +80,84 @@ func (m *postgresDBRepo) CreateUser(user models.User) (string, error) {
 
 // GetUserResumes returns all resumes for a user
 func (m *postgresDBRepo) GetUserResumes(userID string) ([]models.Resume, error) {
-	return nil, nil
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	var resumes []models.Resume
+
+	stmt := `
+		SELECT id, name, file_name, user_id, is_master, size 
+		FROM resumes WHERE user_id = $1
+	`
+
+	rows, err := m.DB.QueryContext(ctx, stmt, userID)
+	if err != nil {
+		return resumes, err
+	}
+
+	for rows.Next() {
+		var resume models.Resume
+
+		if err := rows.Scan(&resume.ID, &resume.Name, &resume.FileName, &resume.UserID, &resume.IsMaster, &resume.Size); err != nil {
+			return resumes, err
+		}
+
+		resumes = append(resumes, resume)
+	}
+
+	return resumes, nil
 }
 
 // GetResume returns a resume by ID
 func (m *postgresDBRepo) GetResume(id string) (models.Resume, error) {
-	return models.Resume{}, nil
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	var resume models.Resume
+
+	stmt := `
+		SELECT id, name, file_name, user_id, is_master, size
+		FROM resumes WHERE id = $1
+	`
+
+	row := m.DB.QueryRowContext(ctx, stmt, id)
+	if err := row.Scan(&resume.ID, &resume.Name, &resume.FileName, &resume.UserID, &resume.IsMaster, &resume.Size); err != nil {
+		return resume, err
+	}
+
+	return resume, nil
 }
 
 // InsertResume inserts a new resume
 func (m *postgresDBRepo) InsertResume(resume models.Resume) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	stmt := `
+		INSERT INTO resumes (name, file_name, user_id, is_master, size) VALUES ($1, $2, $3, $4, $5)
+	`
+
+	_, err := m.DB.ExecContext(ctx, stmt, resume.Name, resume.FileName, resume.UserID, resume.IsMaster, resume.Size)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // DeleteResume deletes a resume
 func (m *postgresDBRepo) DeleteResume(id string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	stmt := `
+		DELETE FROM resumes WHERE id = $1
+	`
+
+	_, err := m.DB.ExecContext(ctx, stmt, id)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
