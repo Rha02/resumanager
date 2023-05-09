@@ -27,13 +27,14 @@ func NewRepository(
 	cacheRepo cacheservice.CacheRepository,
 	fileStorage filestorageservice.FileStorageRepository,
 	authTokenRepo authtokenservice.AuthTokenRepository,
+	hashRepo hashservice.HashRepository,
 ) *Repository {
 	return &Repository{
 		DB:            db,
 		Blacklist:     cacheRepo,
 		FileStorage:   fileStorage,
 		AuthTokenRepo: authTokenRepo,
-		hashRepo:      hashservice.NewBcryptRepo(),
+		hashRepo:      hashRepo,
 		validator:     *validator.New(),
 	}
 }

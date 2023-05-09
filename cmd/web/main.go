@@ -12,6 +12,7 @@ import (
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	filestorageservice "github.com/Rha02/resumanager/src/services/fileStorageService"
+	hashservice "github.com/Rha02/resumanager/src/services/hashService"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )
@@ -44,9 +45,12 @@ func main() {
 	// init auth token service
 	authTokenRepo := authtokenservice.NewAuthTokenProvider(os.Getenv("JWT_SIGNING_ALGORITHM"))
 
+	// init hash service
+	hashRepo := hashservice.NewBcryptRepo()
+
 	// init handlers
 	handlers.NewHandlers(handlers.NewRepository(
-		dbRepo, blacklist, fileStorageRepo, authTokenRepo,
+		dbRepo, blacklist, fileStorageRepo, authTokenRepo, hashRepo,
 	))
 
 	router := newRouter()

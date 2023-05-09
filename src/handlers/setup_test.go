@@ -8,6 +8,7 @@ import (
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	filestorageservice "github.com/Rha02/resumanager/src/services/fileStorageService"
+	hashservice "github.com/Rha02/resumanager/src/services/hashService"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -18,6 +19,7 @@ func TestMain(m *testing.M) {
 	cacheRepo := cacheservice.NewTestRepo()
 	fileStorageRepo := filestorageservice.NewTestFileStorage()
 	authTokenRepo := authtokenservice.NewTestAuthTokenRepo()
+	hashRepo := hashservice.NewTestHashRepo()
 
 	// init cacheRepo data
 	cacheRepo.Set("blacklisted_token", "true", 0)
@@ -28,6 +30,7 @@ func TestMain(m *testing.M) {
 		cacheRepo,
 		fileStorageRepo,
 		authTokenRepo,
+		hashRepo,
 	))
 
 	os.Exit(m.Run())
