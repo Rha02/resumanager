@@ -26,13 +26,13 @@ func (m *Repository) GetUserResumes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := make(map[string]resStruct)
+	res := make([]resStruct, 0, len(resumes))
 
 	// add file url to each resume
-	for _, resume := range resumes {
+	for i, resume := range resumes {
 		fileURL := m.FileStorage.GetFileURL(resume.FileName)
 
-		res[resume.FileName] = resStruct{
+		res[i] = resStruct{
 			Resume:  resume,
 			FileURL: fileURL,
 		}
@@ -48,6 +48,11 @@ func (m *Repository) GetResume(w http.ResponseWriter, r *http.Request) {
 	userIDint := int(userID)
 
 	resumeID := chi.URLParam(r, "resumeID")
+
+	if _, err := strconv.Atoi(resumeID); err != nil {
+		http.Error(w, "Invalid resume ID", http.StatusBadRequest)
+		return
+	}
 
 	resume, err := m.DB.GetResume(resumeID)
 	if err != nil {

@@ -38,7 +38,7 @@ func (r *redisRepo) Get(key string) (string, error) {
 
 	val, err := r.rdb.Get(ctx, key).Result()
 	if err != nil {
-		return "", err
+		return "", nil
 	}
 
 	return val, nil
