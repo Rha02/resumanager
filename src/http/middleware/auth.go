@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/Rha02/resumanager/src/handlers"
+	"github.com/Rha02/resumanager/src/http/handlers"
 )
 
 func RequiresAuthentication(repo *handlers.Repository) func(http.Handler) http.Handler {

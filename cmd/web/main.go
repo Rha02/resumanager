@@ -7,8 +7,8 @@ import (
 
 	"github.com/Rha02/resumanager/src/dbrepo"
 	"github.com/Rha02/resumanager/src/driver"
-	"github.com/Rha02/resumanager/src/handlers"
-	"github.com/Rha02/resumanager/src/middleware"
+	"github.com/Rha02/resumanager/src/http/handlers"
+	"github.com/Rha02/resumanager/src/http/middleware"
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	filestorageservice "github.com/Rha02/resumanager/src/services/fileStorageService"

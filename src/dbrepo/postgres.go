@@ -121,11 +121,8 @@ func (m *postgresDBRepo) GetResume(id string) (models.Resume, error) {
 	`
 
 	row := m.DB.QueryRowContext(ctx, stmt, id)
-	if err := row.Scan(&resume.ID, &resume.Name, &resume.FileName, &resume.UserID, &resume.IsMaster, &resume.Size); err != nil {
-		return resume, err
-	}
-
-	return resume, nil
+	err := row.Scan(&resume.ID, &resume.Name, &resume.FileName, &resume.UserID, &resume.IsMaster, &resume.Size)
+	return resume, err
 }
 
 // InsertResume inserts a new resume
@@ -138,11 +135,7 @@ func (m *postgresDBRepo) InsertResume(resume models.Resume) error {
 	`
 
 	_, err := m.DB.ExecContext(ctx, stmt, resume.Name, resume.FileName, resume.UserID, resume.IsMaster, resume.Size)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // DeleteResume deletes a resume
@@ -155,9 +148,5 @@ func (m *postgresDBRepo) DeleteResume(id string) error {
 	`
 
 	_, err := m.DB.ExecContext(ctx, stmt, id)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

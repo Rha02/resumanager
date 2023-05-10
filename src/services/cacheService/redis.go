@@ -36,11 +36,7 @@ func (r *redisRepo) Get(key string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	val, err := r.rdb.Get(ctx, key).Result()
-	if err != nil {
-		return "", nil
-	}
-
+	val, _ := r.rdb.Get(ctx, key).Result()
 	return val, nil
 }
 
@@ -48,12 +44,7 @@ func (r *redisRepo) Set(key string, value string, expiresIn int64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := r.rdb.Set(ctx, key, value, time.Duration(expiresIn)*time.Second).Err()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return r.rdb.Set(ctx, key, value, time.Duration(expiresIn)*time.Second).Err()
 }
 
 func (r *redisRepo) Close() error {

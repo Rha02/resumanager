@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/Rha02/resumanager/src/dbrepo"
-	"github.com/Rha02/resumanager/src/handlers"
+	"github.com/Rha02/resumanager/src/http/handlers"
 	authtokenservice "github.com/Rha02/resumanager/src/services/authTokenService"
 	cacheservice "github.com/Rha02/resumanager/src/services/cacheService"
 	filestorageservice "github.com/Rha02/resumanager/src/services/fileStorageService"
