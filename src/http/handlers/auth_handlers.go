@@ -92,7 +92,7 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 
 	passwordHash, err := m.hashRepo.HashPassword(body.Password)
 	if err != nil {
-		http.Error(w, "Error hashing password", http.StatusInternalServerError)
+		http.Error(w, "Error hashing password", http.StatusBadRequest)
 		return
 	}
 

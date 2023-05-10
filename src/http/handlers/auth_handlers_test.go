@@ -16,37 +16,37 @@ var loginTests = []struct {
 	{
 		name:               "Valid login",
 		requestBody:        `{"email": "user@test.loc", "password": "testpassword"}`,
-		expectedStatusCode: 200,
+		expectedStatusCode: http.StatusOK,
 	},
 	{
 		name:               "Wrong request body format",
 		requestBody:        `{"email": "user@test.loc", "password": "test"`,
-		expectedStatusCode: 400,
+		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Missing email",
 		requestBody:        `{"password": "testpassword"}`,
-		expectedStatusCode: 400,
+		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Missing password",
 		requestBody:        `{"email": "user@test.loc"}`,
-		expectedStatusCode: 400,
+		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Not in email format",
 		requestBody:        `{"email": "notemail", password": "testpassword"}`,
-		expectedStatusCode: 400,
+		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Short password",
 		requestBody:        `{"email": "user@test.loc", password": "test"}`,
-		expectedStatusCode: 400,
+		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Invalid credentials",
 		requestBody:        `{"email": "db_get_user_error@test.loc", "password": "testpassword" }`,
-		expectedStatusCode: 401,
+		expectedStatusCode: http.StatusUnauthorized,
 	},
 	{
 		name: "Error creating access token",
@@ -54,7 +54,7 @@ var loginTests = []struct {
 			"email": "access_token_error@test.loc",
 			"password": "testpassword"
 		}`,
-		expectedStatusCode: 500,
+		expectedStatusCode: http.StatusInternalServerError,
 	},
 	{
 		name: "Error creating refresh token",
@@ -62,7 +62,7 @@ var loginTests = []struct {
 			"email": "refresh_token_error@test.loc",
 			"password": "testpassword"
 		}`,
-		expectedStatusCode: 500,
+		expectedStatusCode: http.StatusInternalServerError,
 	},
 }
 
@@ -246,12 +246,17 @@ var registerTests = []struct {
 	{
 		name:               "Short username",
 		requestBody:        `{"email": "user@test.loc", "username": "te", password": "testpassword"}`,
-		expectedStatusCode: 400,
+		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name:               "Short password",
 		requestBody:        `{"email": "user@test.loc", "username": "testuser", password": "test"}`,
-		expectedStatusCode: 400,
+		expectedStatusCode: http.StatusBadRequest,
+	},
+	{
+		name:               "Hashing error",
+		requestBody:        `{"email": "user@test.loc", "username": "testuser", "password": "hash_error"}`,
+		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
 		name: "Error creating user",
