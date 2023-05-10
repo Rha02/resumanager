@@ -26,15 +26,19 @@ func main() {
 	if err != nil {
 		log.Fatal("Cannot connect to database! Dying...")
 	}
-
 	defer db.Close()
+
+	rdb, err := driver.ConnectRedis(os.Getenv("REDIS_ADDRESS"), os.Getenv("REDIS_PASSWORD"))
+	if err != nil {
+		log.Fatal("Cannot connect to redis! Dying...")
+	}
+	defer rdb.Close()
 
 	// init db repo
 	dbRepo := dbrepo.NewPostgresRepo(db.SQL)
 
 	// init blacklist for auth refresh tokens
-	blacklist := cacheservice.NewRedisRepo(os.Getenv("REDIS_ADDRESS"), os.Getenv("REDIS_PASSWORD"))
-	defer blacklist.Close()
+	blacklist := cacheservice.NewRedisRepo(rdb.Redis)
 
 	// init file storage service
 	fileStorageRepo := filestorageservice.NewAzureFileStorage(

@@ -10,18 +10,18 @@ import (
 
 const timeout = 3 * time.Second
 
-type postgresDBRepo struct {
-	DB *sql.DB
+type postgresdbRepo struct {
+	db *sql.DB
 }
 
 func NewPostgresRepo(db *sql.DB) DatabaseRepository {
-	return &postgresDBRepo{
-		DB: db,
+	return &postgresdbRepo{
+		db: db,
 	}
 }
 
 // GetUserByID returns a user by ID
-func (m *postgresDBRepo) GetUserByID(id string) (models.User, error) {
+func (m *postgresdbRepo) GetUserByID(id string) (models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -29,7 +29,7 @@ func (m *postgresDBRepo) GetUserByID(id string) (models.User, error) {
 
 	stmt := `SELECT id, email, username, password_hash FROM users WHERE id = $1`
 
-	row := m.DB.QueryRowContext(ctx, stmt, id)
+	row := m.db.QueryRowContext(ctx, stmt, id)
 
 	if err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password); err != nil {
 		return user, err
@@ -39,7 +39,7 @@ func (m *postgresDBRepo) GetUserByID(id string) (models.User, error) {
 }
 
 // GetUserByUsername returns a user by username
-func (m *postgresDBRepo) GetUserByEmail(email string) (models.User, error) {
+func (m *postgresdbRepo) GetUserByEmail(email string) (models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -51,7 +51,7 @@ func (m *postgresDBRepo) GetUserByEmail(email string) (models.User, error) {
 		WHERE email = $1
 	`
 
-	row := m.DB.QueryRowContext(ctx, stmt, email)
+	row := m.db.QueryRowContext(ctx, stmt, email)
 
 	if err := row.Scan(&user.ID, &user.Email, &user.Username, &user.Password); err != nil {
 		return user, err
@@ -61,7 +61,7 @@ func (m *postgresDBRepo) GetUserByEmail(email string) (models.User, error) {
 }
 
 // CreateUser creates a new user
-func (m *postgresDBRepo) CreateUser(user models.User) (string, error) {
+func (m *postgresdbRepo) CreateUser(user models.User) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -71,7 +71,7 @@ func (m *postgresDBRepo) CreateUser(user models.User) (string, error) {
 
 	var newID string
 
-	if err := m.DB.QueryRowContext(ctx, stmt, user.Email, user.Username, user.Password).Scan(&newID); err != nil {
+	if err := m.db.QueryRowContext(ctx, stmt, user.Email, user.Username, user.Password).Scan(&newID); err != nil {
 		return "", err
 	}
 
@@ -79,7 +79,7 @@ func (m *postgresDBRepo) CreateUser(user models.User) (string, error) {
 }
 
 // GetUserResumes returns all resumes for a user
-func (m *postgresDBRepo) GetUserResumes(userID string) ([]models.Resume, error) {
+func (m *postgresdbRepo) GetUserResumes(userID string) ([]models.Resume, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -90,7 +90,7 @@ func (m *postgresDBRepo) GetUserResumes(userID string) ([]models.Resume, error) 
 		FROM resumes WHERE user_id = $1
 	`
 
-	rows, err := m.DB.QueryContext(ctx, stmt, userID)
+	rows, err := m.db.QueryContext(ctx, stmt, userID)
 	if err != nil {
 		return resumes, err
 	}
@@ -109,7 +109,7 @@ func (m *postgresDBRepo) GetUserResumes(userID string) ([]models.Resume, error) 
 }
 
 // GetResume returns a resume by ID
-func (m *postgresDBRepo) GetResume(id string) (models.Resume, error) {
+func (m *postgresdbRepo) GetResume(id string) (models.Resume, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -120,13 +120,13 @@ func (m *postgresDBRepo) GetResume(id string) (models.Resume, error) {
 		FROM resumes WHERE id = $1
 	`
 
-	row := m.DB.QueryRowContext(ctx, stmt, id)
+	row := m.db.QueryRowContext(ctx, stmt, id)
 	err := row.Scan(&resume.ID, &resume.Name, &resume.FileName, &resume.UserID, &resume.IsMaster, &resume.Size)
 	return resume, err
 }
 
 // InsertResume inserts a new resume
-func (m *postgresDBRepo) InsertResume(resume models.Resume) error {
+func (m *postgresdbRepo) InsertResume(resume models.Resume) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -134,12 +134,12 @@ func (m *postgresDBRepo) InsertResume(resume models.Resume) error {
 		INSERT INTO resumes (name, file_name, user_id, is_master, size) VALUES ($1, $2, $3, $4, $5)
 	`
 
-	_, err := m.DB.ExecContext(ctx, stmt, resume.Name, resume.FileName, resume.UserID, resume.IsMaster, resume.Size)
+	_, err := m.db.ExecContext(ctx, stmt, resume.Name, resume.FileName, resume.UserID, resume.IsMaster, resume.Size)
 	return err
 }
 
 // DeleteResume deletes a resume
-func (m *postgresDBRepo) DeleteResume(id string) error {
+func (m *postgresdbRepo) DeleteResume(id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -147,6 +147,6 @@ func (m *postgresDBRepo) DeleteResume(id string) error {
 		DELETE FROM resumes WHERE id = $1
 	`
 
-	_, err := m.DB.ExecContext(ctx, stmt, id)
+	_, err := m.db.ExecContext(ctx, stmt, id)
 	return err
 }

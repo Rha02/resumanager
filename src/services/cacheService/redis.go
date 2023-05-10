@@ -13,22 +13,9 @@ type redisRepo struct {
 	rdb *redis.Client
 }
 
-func NewRedisRepo(address string, password string) CacheRepository {
-	client := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: password,
-	})
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	_, err := client.Ping(ctx).Result()
-	if err != nil {
-		panic(err)
-	}
-
+func NewRedisRepo(rdb *redis.Client) CacheRepository {
 	return &redisRepo{
-		rdb: client,
+		rdb: rdb,
 	}
 }
 
