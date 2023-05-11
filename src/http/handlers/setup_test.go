@@ -44,5 +44,10 @@ func getRoutes() *chi.Mux {
 	mux.Post("/register", Repo.Register)
 	mux.Post("/logout", Repo.Logout)
 
+	mux.Get("/resumes", Repo.GetUserResumes)
+	mux.Get("/resumes/{resumeID}", Repo.GetResume)
+	mux.Post("/resumes", Repo.PostResume)
+	mux.Delete("/resumes/{resumeID}", Repo.DeleteResume)
+
 	return mux
 }

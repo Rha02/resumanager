@@ -17,7 +17,12 @@ type resStruct struct {
 
 func (m *Repository) GetUserResumes(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	userID, ok := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	if !ok {
+		http.Error(w, "Error fetching user ID from context", http.StatusInternalServerError)
+		return
+	}
+
 	userIDstr := strconv.Itoa(int(userID))
 
 	resumes, err := m.DB.GetUserResumes(userIDstr)
@@ -26,7 +31,7 @@ func (m *Repository) GetUserResumes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := make([]resStruct, 0, len(resumes))
+	res := make([]resStruct, len(resumes))
 
 	// add file url to each resume
 	for i, resume := range resumes {
@@ -44,7 +49,12 @@ func (m *Repository) GetUserResumes(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) GetResume(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	userID, ok := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	if !ok {
+		http.Error(w, "Error fetching user ID from context", http.StatusInternalServerError)
+		return
+	}
+
 	userIDint := int(userID)
 
 	resumeID := chi.URLParam(r, "resumeID")
@@ -61,7 +71,7 @@ func (m *Repository) GetResume(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if resume.UserID != userIDint {
-		http.Error(w, "Unauthorized to access this resume", http.StatusUnauthorized)
+		http.Error(w, "Unauthorized to access this resume", http.StatusForbidden)
 		return
 	}
 
@@ -77,6 +87,14 @@ func (m *Repository) GetResume(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	if !ok {
+		http.Error(w, "Error fetching user ID from context", http.StatusInternalServerError)
+		return
+	}
+	userIDint := int(userID)
+
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Error reading file from form", http.StatusInternalServerError)
@@ -97,10 +115,6 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 
 	// Set max size to 10MB
 	r.ParseMultipartForm(10 << 20)
-
-	ctx := r.Context()
-	userID := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
-	userIDint := int(userID)
 
 	isMaster := r.FormValue("is_master")
 	if isMaster == "" {
