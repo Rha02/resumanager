@@ -89,6 +89,10 @@ func (m *testDBRepo) GetResume(id string) (models.Resume, error) {
 
 // InsertResume inserts a new resume
 func (m *testDBRepo) InsertResume(resume models.Resume) error {
+	if resume.Name == "db_insert_resume_error.pdf" {
+		return errors.New("error inserting resume")
+	}
+
 	return nil
 }
 

@@ -97,16 +97,12 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
-		http.Error(w, "Error reading file from form", http.StatusInternalServerError)
+		http.Error(w, "Error reading file from form", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
-	if fileHeader == nil {
-		http.Error(w, "Error reading file from form", http.StatusInternalServerError)
-		return
-	}
-
+	// Check file type
 	extension := filepath.Ext(fileHeader.Filename)
 	if extension != ".pdf" {
 		http.Error(w, "File must be a pdf", http.StatusBadRequest)
@@ -118,12 +114,12 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 
 	isMaster := r.FormValue("is_master")
 	if isMaster == "" {
-		http.Error(w, "Error reading is_master from form", http.StatusInternalServerError)
+		http.Error(w, "Error reading is_master from form", http.StatusBadRequest)
 		return
 	}
 	isMasterBool, err := strconv.ParseBool(isMaster)
 	if err != nil {
-		http.Error(w, "Error converting is_master to bool", http.StatusInternalServerError)
+		http.Error(w, "Error converting is_master to bool", http.StatusBadRequest)
 		return
 	}
 

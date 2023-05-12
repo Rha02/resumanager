@@ -1,6 +1,9 @@
 package filestorageservice
 
-import "io"
+import (
+	"errors"
+	"io"
+)
 
 type testFileStorage struct{}
 
@@ -13,6 +16,10 @@ func (m *testFileStorage) GetFileURL(name string) string {
 }
 
 func (m *testFileStorage) Upload(file io.Reader) (string, error) {
+	data, _ := io.ReadAll(file)
+	if string(data) == "error" {
+		return "", errors.New("error uploading file")
+	}
 	return "Upload", nil
 }
 
