@@ -24,5 +24,8 @@ func (m *testFileStorage) Upload(file io.Reader) (string, error) {
 }
 
 func (m *testFileStorage) Delete(name string) (string, error) {
+	if name == "error.pdf" {
+		return "", errors.New("error deleting file")
+	}
 	return "Delete", nil
 }

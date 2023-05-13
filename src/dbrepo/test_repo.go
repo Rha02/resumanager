@@ -81,6 +81,10 @@ func (m *testDBRepo) GetResume(id string) (models.Resume, error) {
 		return resume, errors.New("error getting resume")
 	}
 
+	if id == "-2" {
+		resume.FileName = "error.pdf"
+	}
+
 	resume.ID = 1
 	resume.UserID = 1
 
@@ -98,5 +102,8 @@ func (m *testDBRepo) InsertResume(resume models.Resume) error {
 
 // DeleteResume deletes a resume
 func (m *testDBRepo) DeleteResume(id string) error {
+	if id == "-3" {
+		return errors.New("error deleting resume")
+	}
 	return nil
 }

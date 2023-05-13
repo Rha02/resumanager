@@ -155,10 +155,18 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) DeleteResume(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	userID, ok := ctx.Value(ContextKey{}).(map[string]interface{})["id"].(float64)
+	if !ok {
+		http.Error(w, "Error fetching user ID from context", http.StatusInternalServerError)
+		return
+	}
 	userIDint := int(userID)
 
 	resumeID := chi.URLParam(r, "resumeID")
+	if _, err := strconv.Atoi(resumeID); err != nil {
+		http.Error(w, "Invalid resume ID", http.StatusBadRequest)
+		return
+	}
 
 	resume, err := m.DB.GetResume(resumeID)
 	if err != nil {

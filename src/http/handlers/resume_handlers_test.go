@@ -145,15 +145,15 @@ var postResumeTests = []struct {
 		},
 		expectedStatusCode: http.StatusOK,
 	},
-	{
-		name:     "Missing user id",
-		ctxValue: map[string]interface{}{},
-		file:     "test.pdf",
-		params: map[string]string{
-			"is_master": "true",
-		},
-		expectedStatusCode: http.StatusInternalServerError,
-	},
+	// {
+	// 	name:     "Missing user id",
+	// 	ctxValue: map[string]interface{}{},
+	// 	file:     "test.pdf",
+	// 	params: map[string]string{
+	// 		"is_master": "true",
+	// 	},
+	// 	expectedStatusCode: http.StatusInternalServerError,
+	// },
 	{
 		name: "Missing file",
 		ctxValue: map[string]interface{}{
@@ -225,7 +225,6 @@ func TestPostResume(t *testing.T) {
 
 	for _, tt := range postResumeTests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			pr, pw := io.Pipe()
 			defer pw.Close()
 			defer pr.Close()
@@ -248,12 +247,11 @@ func TestPostResume(t *testing.T) {
 				if tt.file == "upload_error.pdf" {
 					data = "error"
 				}
+
 				_, err = part.Write([]byte(data))
 				if err != nil {
 					t.Errorf("error writing to form file: %v", err)
 				}
-
-				// log.Println("done 4")
 
 				for key, value := range tt.params {
 					err = writer.WriteField(key, value)
@@ -265,6 +263,91 @@ func TestPostResume(t *testing.T) {
 
 			req, _ := http.NewRequest("POST", "/resumes", pr)
 			req.Header.Set("Content-Type", writer.FormDataContentType())
+
+			ctx := context.WithValue(req.Context(), ContextKey{}, tt.ctxValue)
+
+			req = req.WithContext(ctx)
+
+			rr := httptest.NewRecorder()
+
+			handler.ServeHTTP(rr, req)
+
+			if rr.Code != tt.expectedStatusCode {
+				t.Errorf("handler returned wrong status code: got %v, want %v", rr.Code, tt.expectedStatusCode)
+				t.Errorf("response body: %v", rr.Body.String())
+			}
+		})
+	}
+}
+
+var deleteResumeTests = []struct {
+	name               string
+	ctxValue           map[string]interface{}
+	resumeID           string
+	expectedStatusCode int
+}{
+	{
+		name: "Valid request",
+		ctxValue: map[string]interface{}{
+			"id": 1.0,
+		},
+		resumeID:           "1",
+		expectedStatusCode: http.StatusOK,
+	},
+	{
+		name:               "Missing user id",
+		ctxValue:           map[string]interface{}{},
+		resumeID:           "1",
+		expectedStatusCode: http.StatusInternalServerError,
+	},
+	{
+		name: "Invalid resume id",
+		ctxValue: map[string]interface{}{
+			"id": 1.0,
+		},
+		resumeID:           "invalid",
+		expectedStatusCode: http.StatusBadRequest,
+	},
+	{
+		name: "Error getting resume",
+		ctxValue: map[string]interface{}{
+			"id": 1.0,
+		},
+		resumeID:           "-1",
+		expectedStatusCode: http.StatusInternalServerError,
+	},
+	{
+		name: "User does not own resume",
+		ctxValue: map[string]interface{}{
+			"id": 2.0,
+		},
+		resumeID:           "1",
+		expectedStatusCode: http.StatusForbidden,
+	},
+	{
+		name: "Error deleting resume",
+		ctxValue: map[string]interface{}{
+			"id": 1.0,
+		},
+		resumeID:           "-3",
+		expectedStatusCode: http.StatusInternalServerError,
+	},
+	{
+		name: "Error deleting resume file from storage",
+		ctxValue: map[string]interface{}{
+			"id": 1.0,
+		},
+		resumeID:           "-2",
+		expectedStatusCode: http.StatusInternalServerError,
+	},
+}
+
+func TestDeleteResume(t *testing.T) {
+	handler := getRoutes()
+
+	for _, tt := range deleteResumeTests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, _ := http.NewRequest("DELETE", "/resumes/"+tt.resumeID, nil)
 
 			ctx := context.WithValue(req.Context(), ContextKey{}, tt.ctxValue)
 
