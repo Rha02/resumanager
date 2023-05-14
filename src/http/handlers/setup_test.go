@@ -12,6 +12,9 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// globals
+var handler *chi.Mux
+
 // TestMain is the entry point for all tests in this package.
 func TestMain(m *testing.M) {
 	// init repos
@@ -32,6 +35,8 @@ func TestMain(m *testing.M) {
 		authTokenRepo,
 		hashRepo,
 	))
+
+	handler = getRoutes()
 
 	os.Exit(m.Run())
 }

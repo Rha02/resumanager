@@ -14,6 +14,9 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// globals
+var handler *chi.Mux
+
 func TestMain(m *testing.M) {
 	// init repos
 	dbRepo := dbrepo.NewTestDBRepo()
@@ -30,6 +33,8 @@ func TestMain(m *testing.M) {
 		authTokenRepo,
 		hashRepo,
 	))
+
+	handler = getRoutes()
 
 	os.Exit(m.Run())
 }

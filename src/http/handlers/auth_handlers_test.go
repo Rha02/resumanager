@@ -68,8 +68,6 @@ var loginTests = []struct {
 
 // TestLogin tests the Login handler.
 func TestLogin(t *testing.T) {
-	handler := getRoutes()
-
 	for _, tt := range loginTests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, _ := http.NewRequest("POST", "/login", strings.NewReader(tt.requestBody))
@@ -140,8 +138,6 @@ var refreshTests = []struct {
 }
 
 func TestRefresh(t *testing.T) {
-	handler := getRoutes()
-
 	for _, tt := range refreshTests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, _ := http.NewRequest("POST", "/refresh", strings.NewReader(""))
@@ -270,8 +266,6 @@ var registerTests = []struct {
 }
 
 func TestRegister(t *testing.T) {
-	handler := getRoutes()
-
 	for _, tt := range registerTests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, _ := http.NewRequest("POST", "/register", strings.NewReader(tt.requestBody))
@@ -288,8 +282,6 @@ func TestRegister(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
-	handler := getRoutes()
-
 	for _, tt := range logoutTests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, _ := http.NewRequest("POST", "/logout", strings.NewReader(""))

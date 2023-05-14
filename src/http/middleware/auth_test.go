@@ -50,8 +50,6 @@ var requiresAuthenticationTests = []struct {
 
 // TestRequiresAuthentication tests the RequiresAuthentication middleware
 func TestRequiresAuthentication(t *testing.T) {
-	handler := getRoutes()
-
 	for _, tt := range requiresAuthenticationTests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, _ := http.NewRequest("POST", "/test-middleware/auth", strings.NewReader(""))

@@ -36,8 +36,6 @@ var getUserResumesTests = []struct {
 }
 
 func TestGetUserResumes(t *testing.T) {
-	handler := getRoutes()
-
 	for _, tt := range getUserResumesTests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, _ := http.NewRequest("GET", "/resumes", nil)
@@ -105,8 +103,6 @@ var getResumeTests = []struct {
 }
 
 func TestGetResume(t *testing.T) {
-	handler := getRoutes()
-
 	for _, tt := range getResumeTests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, _ := http.NewRequest("GET", "/resumes/"+tt.resumeID, nil)
@@ -193,8 +189,6 @@ var postResumeTests = []struct {
 }
 
 func TestPostResume(t *testing.T) {
-	handler := getRoutes()
-
 	for _, tt := range postResumeTests {
 		t.Run(tt.name, func(t *testing.T) {
 			pr, pw := io.Pipe()
@@ -308,8 +302,6 @@ var deleteResumeTests = []struct {
 }
 
 func TestDeleteResume(t *testing.T) {
-	handler := getRoutes()
-
 	for _, tt := range deleteResumeTests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, _ := http.NewRequest("DELETE", "/resumes/"+tt.resumeID, nil)
