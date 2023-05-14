@@ -112,16 +112,13 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 	// Set max size to 10MB
 	r.ParseMultipartForm(10 << 20)
 
-	isMaster := r.FormValue("is_master")
-	if isMaster == "" {
-		http.Error(w, "Error reading is_master from form", http.StatusBadRequest)
-		return
-	}
-	isMasterBool, err := strconv.ParseBool(isMaster)
+	// Mark resume as master resume if user has no resumes
+	resumes, err := m.DB.GetUserResumes(strconv.Itoa(userIDint))
 	if err != nil {
-		http.Error(w, "Error converting is_master to bool", http.StatusBadRequest)
+		http.Error(w, "Error fetching resumes from database", http.StatusInternalServerError)
 		return
 	}
+	isMaster := len(resumes) == 0
 
 	filename, err := m.FileStorage.Upload(file)
 	if err != nil {
@@ -136,7 +133,7 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 		FileName: filename,
 		UserID:   userIDint,
 		Size:     int(fileHeader.Size),
-		IsMaster: isMasterBool,
+		IsMaster: isMaster,
 	}
 
 	if err := m.DB.InsertResume(resume); err != nil {

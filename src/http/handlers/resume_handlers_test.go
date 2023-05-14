@@ -131,7 +131,6 @@ var postResumeTests = []struct {
 	name               string
 	ctxValue           map[string]interface{}
 	file               string
-	params             map[string]string
 	expectedStatusCode int
 }{
 	{
@@ -139,10 +138,7 @@ var postResumeTests = []struct {
 		ctxValue: map[string]interface{}{
 			"id": 1.0,
 		},
-		file: "test.pdf",
-		params: map[string]string{
-			"is_master": "true",
-		},
+		file:               "test.pdf",
 		expectedStatusCode: http.StatusOK,
 	},
 	// {
@@ -159,10 +155,7 @@ var postResumeTests = []struct {
 		ctxValue: map[string]interface{}{
 			"id": 1.0,
 		},
-		file: "",
-		params: map[string]string{
-			"is_master": "true",
-		},
+		file:               "",
 		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
@@ -170,41 +163,23 @@ var postResumeTests = []struct {
 		ctxValue: map[string]interface{}{
 			"id": 1.0,
 		},
-		file: "invalid.txt",
-		params: map[string]string{
-			"is_master": "true",
-		},
+		file:               "invalid.txt",
 		expectedStatusCode: http.StatusBadRequest,
 	},
 	{
-		name: "Missing is_master",
+		name: "Error getting user resumes",
 		ctxValue: map[string]interface{}{
-			"id": 1.0,
+			"id": -1.0,
 		},
 		file:               "test.pdf",
-		params:             map[string]string{},
-		expectedStatusCode: http.StatusBadRequest,
-	},
-	{
-		name: "Invalid is_master",
-		ctxValue: map[string]interface{}{
-			"id": 1.0,
-		},
-		file: "test.pdf",
-		params: map[string]string{
-			"is_master": "invalid",
-		},
-		expectedStatusCode: http.StatusBadRequest,
+		expectedStatusCode: http.StatusInternalServerError,
 	},
 	{
 		name: "Error uploading resume",
 		ctxValue: map[string]interface{}{
 			"id": 1.0,
 		},
-		file: "upload_error.pdf",
-		params: map[string]string{
-			"is_master": "true",
-		},
+		file:               "upload_error.pdf",
 		expectedStatusCode: http.StatusInternalServerError,
 	},
 	{
@@ -212,10 +187,7 @@ var postResumeTests = []struct {
 		ctxValue: map[string]interface{}{
 			"id": 1.0,
 		},
-		file: "db_insert_resume_error.pdf",
-		params: map[string]string{
-			"is_master": "true",
-		},
+		file:               "db_insert_resume_error.pdf",
 		expectedStatusCode: http.StatusInternalServerError,
 	},
 }
@@ -251,13 +223,6 @@ func TestPostResume(t *testing.T) {
 				_, err = part.Write([]byte(data))
 				if err != nil {
 					t.Errorf("error writing to form file: %v", err)
-				}
-
-				for key, value := range tt.params {
-					err = writer.WriteField(key, value)
-					if err != nil {
-						t.Errorf("error writing to form field: %v", err)
-					}
 				}
 			}()
 
