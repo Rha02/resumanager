@@ -1,5 +1,6 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<h1>ResuManager</h1>
+<p>An interactive dashboard that serves as a resume storage and tracking system, and comes with a few handy features to analyze and improve resumes.</p>
+<a href="/dashboard">Get Started</a>
 
 <style lang="scss">
     h1 {
