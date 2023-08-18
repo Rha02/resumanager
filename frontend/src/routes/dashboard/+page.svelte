@@ -1,5 +1,7 @@
-<script lang="ts"></script>
+<script lang="ts">
+	import { user } from "../../store";
+</script>
 
 <div>
-    This is my dashboard
+    Hello {$user?.name}. This is your dashboard.
 </div>
