@@ -9,6 +9,12 @@ import (
 	"github.com/Rha02/resumanager/src/models"
 )
 
+type response struct {
+	models.User
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 	body := struct {
 		Email    string `json:"email" validate:"required,min=3,max=254,email"`
@@ -40,7 +46,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	accessToken, err := m.AuthTokenRepo.CreateAccessToken(map[string]interface{}{
-		"id":       1,
+		"id":       user.ID,
 		"username": user.Username,
 	})
 	if err != nil {
@@ -49,7 +55,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	refreshToken, err := m.AuthTokenRepo.CreateRefreshToken(map[string]interface{}{
-		"id":       1,
+		"id":       user.ID,
 		"username": user.Username,
 	})
 	if err != nil {
@@ -59,9 +65,10 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
+	json.NewEncoder(w).Encode(response{
+		User:         user,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	})
 }
 
@@ -102,15 +109,36 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 		Password: passwordHash,
 	}
 
-	if _, err := m.DB.CreateUser(user); err != nil {
+	id, err := m.DB.CreateUser(user)
+	if err != nil {
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
+		return
+	}
+
+	accessToken, err := m.AuthTokenRepo.CreateAccessToken(map[string]interface{}{
+		"id":       id,
+		"username": user.Username,
+	})
+	if err != nil {
+		http.Error(w, "Error signing access token", http.StatusInternalServerError)
+		return
+	}
+
+	refreshToken, err := m.AuthTokenRepo.CreateRefreshToken(map[string]interface{}{
+		"id":       id,
+		"username": user.Username,
+	})
+	if err != nil {
+		http.Error(w, "Error signing refresh token", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Successfully registered",
+	json.NewEncoder(w).Encode(response{
+		User:         user,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	})
 }
 
