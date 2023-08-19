@@ -17,7 +17,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var PORT = ":3000"
+var PORT = ":80"
 
 func main() {
 	godotenv.Load()
@@ -59,8 +59,17 @@ func main() {
 
 	router := newRouter()
 
+	server := &http.Server{
+		Addr:    PORT,
+		Handler: router,
+	}
+
 	log.Printf("Server is running on port %s", PORT)
-	http.ListenAndServe(PORT, router)
+
+	err = server.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func newRouter() *chi.Mux {

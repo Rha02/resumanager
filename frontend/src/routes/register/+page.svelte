@@ -7,22 +7,25 @@
 <form method="post">
     {#if form?.emailMissing}
         <p>
-            Must be a valid email address
+            {form.msg}
         </p>
     {/if}
     <label for="email">Email</label>
-    <input type="email" name="email">
+    <input type="email" name="email" required>
+    <br>
+    <label for="username">Username</label>
+    <input type="text" name="username" required>
     <br>
     {#if form?.passwordMismatch}
         <p>
-            Passwords must match
+            {form.msg}
         </p>
     {/if}
     <label for="password">Password</label>
-    <input type="password" name="password">
+    <input type="password" name="password" required>
     <br>
     <label for="confirm-password">Confirm Password</label>
-    <input type="password" name="confirm_password">
+    <input type="password" name="confirm_password" required>
     <br>
     <button type="submit">Sign Up</button>
 </form>
