@@ -14,6 +14,7 @@ import (
 	filestorageservice "github.com/Rha02/resumanager/src/services/fileStorageService"
 	hashservice "github.com/Rha02/resumanager/src/services/hashService"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -74,6 +75,15 @@ func main() {
 
 func newRouter() *chi.Mux {
 	r := chi.NewRouter()
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 
 	r.Post("/login", handlers.Repo.Login)
 	r.Post("/register", handlers.Repo.Register)
