@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -27,6 +28,7 @@ func (m *Repository) GetUserResumes(w http.ResponseWriter, r *http.Request) {
 
 	resumes, err := m.DB.GetUserResumes(userIDstr)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error fetching resumes from database", http.StatusInternalServerError)
 		return
 	}
@@ -60,12 +62,14 @@ func (m *Repository) GetResume(w http.ResponseWriter, r *http.Request) {
 	resumeID := chi.URLParam(r, "resumeID")
 
 	if _, err := strconv.Atoi(resumeID); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Invalid resume ID", http.StatusBadRequest)
 		return
 	}
 
 	resume, err := m.DB.GetResume(resumeID)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error fetching resume from database", http.StatusInternalServerError)
 		return
 	}
@@ -97,6 +101,7 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error reading file from form", http.StatusBadRequest)
 		return
 	}
@@ -115,6 +120,7 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 	// Mark resume as master resume if user has no resumes
 	resumes, err := m.DB.GetUserResumes(strconv.Itoa(userIDint))
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error fetching resumes from database", http.StatusInternalServerError)
 		return
 	}
@@ -122,6 +128,7 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 
 	filename, err := m.FileStorage.Upload(file)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error uploading file to storage", http.StatusInternalServerError)
 		return
 	}
@@ -137,6 +144,7 @@ func (m *Repository) PostResume(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := m.DB.InsertResume(resume); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error creating resume in database", http.StatusInternalServerError)
 		return
 	}
@@ -161,12 +169,14 @@ func (m *Repository) DeleteResume(w http.ResponseWriter, r *http.Request) {
 
 	resumeID := chi.URLParam(r, "resumeID")
 	if _, err := strconv.Atoi(resumeID); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Invalid resume ID", http.StatusBadRequest)
 		return
 	}
 
 	resume, err := m.DB.GetResume(resumeID)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error fetching resume from database", http.StatusInternalServerError)
 		return
 	}
@@ -177,11 +187,13 @@ func (m *Repository) DeleteResume(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := m.DB.DeleteResume(resumeID); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error deleting resume from database", http.StatusInternalServerError)
 		return
 	}
 
 	if _, err := m.FileStorage.Delete(resume.FileName); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error deleting resume from database", http.StatusInternalServerError)
 		return
 	}

@@ -24,23 +24,27 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
 
 	err = json.Unmarshal(reqBody, &body)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
 		return
 	}
 
 	if err = m.validator.Struct(body); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error validating request body", http.StatusBadRequest)
 		return
 	}
 
 	user, err := m.DB.GetUserByEmail(body.Email)
 	if err != nil || !m.hashRepo.ComparePasswords(user.Password, body.Password) {
+		log.Println(err.Error())
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
@@ -50,6 +54,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 		"username": user.Username,
 	})
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error signing access token", http.StatusInternalServerError)
 		return
 	}
@@ -59,6 +64,7 @@ func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
 		"username": user.Username,
 	})
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error signing refresh token", http.StatusInternalServerError)
 		return
 	}
@@ -82,11 +88,13 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
 
 	if err = json.Unmarshal(reqBody, &body); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
 		return
 	}
@@ -99,6 +107,7 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 
 	passwordHash, err := m.hashRepo.HashPassword(body.Password)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error hashing password", http.StatusBadRequest)
 		return
 	}
@@ -111,6 +120,7 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 
 	id, err := m.DB.CreateUser(user)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
@@ -120,6 +130,7 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 		"username": user.Username,
 	})
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error signing access token", http.StatusInternalServerError)
 		return
 	}
@@ -129,6 +140,7 @@ func (m *Repository) Register(w http.ResponseWriter, r *http.Request) {
 		"username": user.Username,
 	})
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error signing refresh token", http.StatusInternalServerError)
 		return
 	}
@@ -152,12 +164,14 @@ func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
 	refreshToken := authHeader[7:]
 
 	if _, err := m.AuthTokenRepo.ParseRefreshToken(refreshToken); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error parsing token", http.StatusUnauthorized)
 		return
 	}
 
 	// add refresh token to blacklist
 	if err := m.Blacklist.Set(refreshToken, "", 24*7*60*60); err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error caching token", http.StatusInternalServerError)
 		return
 	}
@@ -180,6 +194,7 @@ func (m *Repository) Refresh(w http.ResponseWriter, r *http.Request) {
 	// check if user token is not blacklisted
 	v, err := m.Blacklist.Get(refreshToken)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error getting token from blacklist", http.StatusInternalServerError)
 		return
 	}
@@ -190,12 +205,14 @@ func (m *Repository) Refresh(w http.ResponseWriter, r *http.Request) {
 
 	claims, err := m.AuthTokenRepo.ParseRefreshToken(refreshToken)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error parsing token", http.StatusUnauthorized)
 		return
 	}
 
 	accessToken, err := m.AuthTokenRepo.CreateAccessToken(claims)
 	if err != nil {
+		log.Println(err.Error())
 		http.Error(w, "Error signing access token", http.StatusInternalServerError)
 		return
 	}
