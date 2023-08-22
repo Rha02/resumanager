@@ -14,34 +14,26 @@ export const actions = {
             return fail(400, { passwordMismatch: true, msg: "Passwords do not match" })
         }
 
-        // TODO: Validate email
-        if (!email) {
+        if (!email.match("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")) {
             return fail(400, { emailMissing: true, msg: "Email is required" })
         }
 
-        // TODO: Register user
-        const response = await fetch(`${API_URL}/register`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+        const res = await fetch(`${API_URL}/register`, {
+            method: 'POST',
             body: JSON.stringify({
                 email,
                 username,
                 password
             })
         })
-        
-        const resBody = await response.json()
 
-        if (!response.ok) {
-            return fail(response.status, resBody)
+        if (res.ok) {
+            const { access_token, refresh_token } = await res.json()
+            cookies.set('access_token', access_token, { path: '/' })
+            cookies.set('refresh_token', refresh_token, { path: '/' })
+            throw redirect(303, '/dashboard')
         }
 
-
-
-        cookies.set("access_token", "test")
-        cookies.set("refresh_token", "test")
-        throw redirect(303, "/dashboard")
+        return fail(400, { msg: "Something went wrong" })
     }
 } satisfies Actions
